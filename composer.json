@@ -1,0 +1,24 @@
+{
+    "name": "careset/zermelobladegraph",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "psr-4" : {
+            "CareSet\\ZermeloBladeGraph\\" : "src/"
+        }
+    },
+    "extra": {
+         "branch-alias": {
+            "dev-master": "0.0.1-dev"
+        },
+	    "laravel": {
+	        "providers": [
+	            "CareSet\\ZermeloBladeGraph\\ServiceProvider"
+	        ]
+	    }
+	},
+     "config": {
+        "sort-packages": true
+    }
+}
