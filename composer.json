@@ -1,5 +1,6 @@
 {
     "name": "careset/zermelobladegraph",
+    "version": "0.0.1",
     "require": {
         "php": ">=7.0.0"
     },

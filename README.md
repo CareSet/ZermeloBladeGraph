@@ -14,7 +14,7 @@ to the "repositories" section of your composer.json file so composer can find th
         "url": "https://github.com/CareSet/ZermeloBladeGraph.git"
     }
 ```        
-2. Then run this command prompt at your project root, type:
+2. Then run this command prompt at your project root, type (this requires installation of ssh keys to access private repo):
     `composer require careset/zermelobladegraph`
     
 3. Then run:   

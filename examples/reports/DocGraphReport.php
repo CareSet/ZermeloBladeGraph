@@ -119,7 +119,7 @@ class DocGraphReport extends ZermeloReport
     * Get the Report Description, by default it will fetch the const DESCRIPTION.
     * This can be overridden to custom return different description based on Input
     */
-    public function getReportDescription(): ?string
+    public function getReportDescription(): string
     {
         return self::DESCRIPTION;
     }
