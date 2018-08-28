@@ -10,8 +10,7 @@ html,body {
 
 .view_contents {
     padding-top: 0px;
-    min-height: calc(100% - 100px);
-    height: calc(100% - 100px);
+    margin-bottom: 0px;
     width: 100%;
 }
 .force_visual {

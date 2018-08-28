@@ -10,39 +10,41 @@
 </div>
 
 
-<div class="row">
-    <div class="col-xs-2">
-        <form method="GET">
-            <div>
-                <h3>Node Types</h3>
-                <ul id="node_types">
-                </ul>
-            </div>
-            <div>
-                <h3>Link Types</h3>
-                <ul id="link_types">
-                </ul>
-            </div>
-            <div>
-                <input type="submit" value="Refresh">
-            </div>
-        </form>
-    </div>
-	<div class="col-xs-10">
-        <div class="view_contents">
+<div class="container-fluid">
+    <div class="row h-100">
+        <div class="col-xs-2">
+            <form method="GET">
+                <div>
+                    <h3>Node Types</h3>
+                    <ul id="node_types">
+                    </ul>
+                </div>
+                <div>
+                    <h3>Link Types</h3>
+                    <ul id="link_types">
+                    </ul>
+                </div>
+                <div>
+                    <input type="submit" value="Refresh">
+                </div>
+            </form>
+        </div>
+        <div class="col-lg">
+            <div class="view_contents">
                 <div class="force_visual">
                 </div>
             </div>
-        </div>
+         </div>
     </div>
+</div>
+
 </div>
 
 
 
 <script type="text/javascript" src="/vendor/CareSet/js/jquery-3.3.1.min.js"></script>
-<script type="text/javascript" src="/vendor/CareSet/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/vendor/CareSet/js/datatables.min.js"></script>
-<script type="text/javascript" src="/vendor/CareSet/js/jquery.dataTables.yadcf.js"></script>
+<script type="text/javascript" src="/vendor/CareSet/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/vendor/CareSet/datatables/datatables.min.js"></script>
 <script type="text/javascript" src="/vendor/CareSet/js/moment.min.js"></script>
 <script type="text/javascript" src="/vendor/CareSet/js/daterangepicker.js"></script>
 <script type="text/javascript" src="/vendor/CareSet/js/d3.v4.min.js"></script>
@@ -220,7 +222,7 @@ var tooltip = d3.select(".force_visual").append("div")
     .style("opacity", 0);
 
 
-var zoom_buttons = d3.select('.force_visual').append("div")
+var zoom_buttons = d3.select('.view_contents').append("div")
 .attr('class','gui-buttons');
 
 zoom_buttons.append('button').attr('class','button-zoom-out').text(' - ').on('click',function(d)
