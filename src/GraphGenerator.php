@@ -5,46 +5,34 @@ namespace CareSet\ZermeloBladeGraph;
 use CareSet\Zermelo\Interfaces\CacheInterface;
 use CareSet\Zermelo\Interfaces\GeneratorInterface;
 use CareSet\Zermelo\Models\AbstractGenerator;
+use CareSet\Zermelo\Models\DatabaseCache;
+use CareSet\Zermelo\Models\ZermeloDatabase;
 use CareSet\Zermelo\Models\ZermeloReport;
 use CareSet\Zermelo\Exceptions\InvalidDatabaseTableException;
 use CareSet\Zermelo\Exceptions\InvalidHeaderFormatException;
 use CareSet\Zermelo\Exceptions\InvalidHeaderTagException;
 use CareSet\Zermelo\Exceptions\UnexpectedHeaderException;
 use CareSet\Zermelo\Exceptions\UnexpectedMapRowException;
+use CareSet\ZermeloBladeGraph\Models\CachedGraphReport;
 use \DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 
-class GraphGenerator extends AbstractGenerator// implements GeneratorInterface
+class GraphGenerator extends AbstractGenerator
 {
-    private $_cache_key = null;
     private $_node_types = null;
     private $_link_types = null;
-    protected  $cacheInterface = null;
+    protected $cache = null;
 
-    public function __construct( CacheInterface $cacheInterface )
+    public function __construct( CachedGraphReport $cache )
     {
-        $this->cacheInterface = $cacheInterface;
-    }
-
-    public function init( array $params = null )
-    {
-        $database = $params['database'];
-        $table = $params['table'];
-        parent::init($params);
-
-        // Graph-specific initialization
-        $this->_cache_key = md5("{$database}.{$table}");
-
-        //default only the first 2 node_types and only 1 link type
-        $this->_node_types = [0,1];
-        $this->_link_types = [0];
+        $this->cache = $cache;
     }
 
     public function graphTable(array $NodeColumns, array $LinkColumns)
     {
 
-        $cache_key = $this->_cache_key;
+        $cache_key = $this->cache->keygen();
         
         $node_table = config("zermelo.CACHE_DB") . ".GraphNode_{$cache_key}";
         $link_table = config("zermelo.CACHE_DB") . ".GraphLinks_{$cache_key}";
@@ -64,7 +52,7 @@ class GraphGenerator extends AbstractGenerator// implements GeneratorInterface
         foreach ($fields as $field) {
             $column = $field['Name'];
             $title = ucwords(str_replace('_', ' ', $column), "\t\r\n\f\v ");
-            if (self::isColumnInKeyArray($column, $NodeColumns)) {
+            if (ZermeloDatabase::isColumnInKeyArray($column, $NodeColumns)) {
                 $subjects_found[] = $column;
                 $node_types[$node_index] = [
                     'id'=>$node_index,
@@ -75,7 +63,7 @@ class GraphGenerator extends AbstractGenerator// implements GeneratorInterface
                 $visible_node_types[$node_index] = $node_types[$node_index]['visible'];
                 ++$node_index;
             }
-            if (self::isColumnInKeyArray($column, $LinkColumns)) {
+            if (ZermeloDatabase::isColumnInKeyArray($column, $LinkColumns)) {
                 $weights_found[] = $column;
                 $link_types[$link_index] = [
                     'id'=>$link_index,
@@ -365,54 +353,14 @@ class GraphGenerator extends AbstractGenerator// implements GeneratorInterface
      * GraphModelJson
      * Retrieve the nodes and links array to be used with graph
      *
-     * @param ZermeloReport $Report
      * @return array
      */
-    public function toJson( ZermeloReport $Report ): array
+    public function toJson(): array
     {
-        $report_name = trim($Report->getClassName());
-        $Code = $Report->getCode();
-        $Parameters = $Report->getParameters();
-
-        $cache_key = md5($Report->getClassName() . "-" . $Code . "-" . $Report->GetBoltId() . "-" . implode("-", $Parameters));
-
-        // We've got our cache key, see if this report is in cache
-     /*   if ( $this->cacheInterface->exists( $key ) ) {
-
-        } else {
-            $this->cacheInterface->set( $key, $Report, 0 );
-        }
-*/
-        $cache_table_stub = "Report_{$cache_key}";
-        $cache_table = config("zermelo.CACHE_DB") . ".{$cache_table_stub}";
-
-        DB::statement(DB::raw("CREATE DATABASE IF NOT EXISTS " . config("zermelo.CACHE_DB") . ";"));
-        DB::statement(DB::raw("SET SESSION group_concat_max_len = 1000000;"));
-
-        /*
-            Check to see if the main report table exists and if it needs to be ran
-        */
-        $exists = count(DB::select("SELECT table_name FROM information_schema.tables WHERE table_schema=? and table_name = ?", [config("zermelo.CACHE_DB"), $cache_table_stub])) > 0;
-        $cacheable = config("zermelo.CACHABLE");
-        $this->cacheInterface->init( $Report );
-
-        $force_update = false;
-        if (!$exists || !$cacheable)
-        {
-            $force_update = true;
-            $this->cacheInterface->CacheReport($Report);
-        } else if ($exists && $this->cacheInterface->CheckUpdateCacheForReport($Report))
-        {
-            $force_update = true;
-            $this->cacheInterface->CacheReport($Report);
-        }
-
-        $this->init( [ 'database' => config("zermelo.CACHE_DB"), 'table' => $cache_table_stub ] );
-
         /*
         If there is a filter, lets apply it to each column
          */
-        $filter = $Report->getInput('filter');
+        $filter = $this->report->getInput('filter');
         if ($filter && is_array($filter)) {
             $associated_filter = [];
             foreach($filter as $f=>$item)
@@ -425,7 +373,7 @@ class GraphGenerator extends AbstractGenerator// implements GeneratorInterface
             $this->addFilter($associated_filter);
         }
 
-        $orderBy = $Report->getInput('order') ?? [];
+        $orderBy = $this->report->getInput('order') ?? [];
         $associated_orderby = [];
         foreach ($orderBy as $order) {
             $orderKey = key($order);
@@ -436,14 +384,14 @@ class GraphGenerator extends AbstractGenerator// implements GeneratorInterface
 
 
 
-        if ($Report->getInput('node_types') && is_array($Report->getInput('node_types'))) {
-            $this->onlyNodeTypes($Report->getInput('node_types'));
+        if ($this->report->getInput('node_types') && is_array($this->report->getInput('node_types'))) {
+            $this->onlyNodeTypes($this->report->getInput('node_types'));
         }
-        if ($Report->getInput('link_types') && is_array($Report->getInput('link_types'))) {
-            $this->onlyLinkTypes($Report->getInput('link_types'));
+        if ($this->report->getInput('link_types') && is_array($this->report->getInput('link_types'))) {
+            $this->onlyLinkTypes($this->report->getInput('link_types'));
         }
 
-        return $this->graphTable($Report->SUBJECTS,$Report->WEIGHTS);
+        return $this->graphTable($this->report->SUBJECTS,$this->report->WEIGHTS);
 
     }
 

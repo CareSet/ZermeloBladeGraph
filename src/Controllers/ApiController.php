@@ -18,9 +18,8 @@ class ApiController implements ControllerInterface
 {
     public function show( ZermeloReport $report )
     {
-
-        $cacheInterface = new DatabaseCache();
-        $generatorInterface = new GraphGenerator( $cacheInterface );
+        $cache = new DatabaseCache( $report );
+        $generatorInterface = new GraphGenerator( $cache );
         return $generatorInterface->toJson( $report );
     }
 
