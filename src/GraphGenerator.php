@@ -34,14 +34,14 @@ class GraphGenerator extends AbstractGenerator
 
         $cache_key = $this->cache->keygen();
         
-        $node_table = config("zermelo.CACHE_DB") . ".GraphNode_{$cache_key}";
-        $link_table = config("zermelo.CACHE_DB") . ".GraphLinks_{$cache_key}";
+        $node_table = config("zermelo.ZERMELO_DB") . ".GraphNode_{$cache_key}";
+        $link_table = config("zermelo.ZERMELO_DB") . ".GraphLinks_{$cache_key}";
    
-        $node_limit_finder =config("zermelo.CACHE_DB") . ".NFinalGraphNode_{$cache_key}"; 
-        $limit_node_table = config("zermelo.CACHE_DB") . ".FinalGraphNode_{$cache_key}";
-        $limit_link_table = config("zermelo.CACHE_DB") . ".FinalGraphLinks_{$cache_key}";
+        $node_limit_finder =config("zermelo.ZERMELO_DB") . ".NFinalGraphNode_{$cache_key}";
+        $limit_node_table = config("zermelo.ZERMELO_DB") . ".FinalGraphNode_{$cache_key}";
+        $limit_link_table = config("zermelo.ZERMELO_DB") . ".FinalGraphLinks_{$cache_key}";
 
-        $fields = $this->getTableColumnDefinition();
+        $fields = ZermeloDatabase::getTableColumnDefinition( $this->cache->getTableName() );
         $node_index = 0;
         $node_types = [];
         $link_index = 0;
@@ -161,8 +161,8 @@ class GraphGenerator extends AbstractGenerator
         return [
             'node_types' => array_values($node_types),
             'link_types' => array_values($link_types),
-            'nodes' => DB::table($node_table)->select("id", "type", "value", "size", "sum_weight","degree")->get(),
-            'links' => DB::table($link_table)->select("source", "target", "link_type", "weight")->whereNotNull("source")->whereNotNull("target")->get(),
+            'nodes' => ZermeloDatabase::connection()->table($node_table)->select("id", "type", "value", "size", "sum_weight","degree")->get(),
+            'links' => ZermeloDatabase::connection()->table($link_table)->select("source", "target", "link_type", "weight")->whereNotNull("source")->whereNotNull("target")->get(),
         ];
 
     }
@@ -179,14 +179,11 @@ class GraphGenerator extends AbstractGenerator
 
     private function buildGraphTable(string $node_table,string $link_table,array $NodeColumns,array $LinkColumns, array $visible_node_types, array $visible_link_types)
     {
-        $cache_key = $this->_cache_key;
+        $cache_key = $this->cache->keygen();
 
-        $destinationTable = "GraphCache_{$cache_key}";
-        $cache_table = "{$this->_database}.{$destinationTable}";
+        $database = config("zermelo.ZERMELO_DB");
 
-        $this->cacheTo($this->_database, $destinationTable);
-
-        $weight_table = config("zermelo.CACHE_DB") . ".GraphWeight_{$cache_key}";
+        $weight_table = $database . ".GraphWeight_{$cache_key}";
 
         /*
             Determine the subjects and the weights column
@@ -197,13 +194,13 @@ class GraphGenerator extends AbstractGenerator
         $node_types = [];
         $link_types = [];
 
-        $fields = $this->getTableColumnDefinition();
+        $fields = ZermeloDatabase::getTableColumnDefinition( $this->cache->getTableName() );
         foreach ($fields as $field) {
             $column = $field['Name'];
-            if (self::isColumnInKeyArray($column, $NodeColumns)) {
+            if (ZermeloDatabase::isColumnInKeyArray($column, $NodeColumns)) {
                 $subjects_found[] = $column;
             }
-            if (self::isColumnInKeyArray($column, $LinkColumns)) {
+            if (ZermeloDatabase::isColumnInKeyArray($column, $LinkColumns)) {
                 $weights_found[] = $column;
             }
         }
@@ -212,9 +209,9 @@ class GraphGenerator extends AbstractGenerator
         /*
             Create the cache table
         */
-        DB::statement("DROP TABLE IF EXISTS {$node_table}");
-        DB::statement("DROP TABLE IF EXISTS {$link_table}");
-        DB::statement("DROP TABLE IF EXISTS {$weight_table}");
+        ZermeloDatabase::connection()->statement("DROP TABLE IF EXISTS {$node_table}");
+        ZermeloDatabase::connection()->statement("DROP TABLE IF EXISTS {$link_table}");
+        ZermeloDatabase::connection()->statement("DROP TABLE IF EXISTS {$weight_table}");
 
         Schema::create( $node_table, function ( Blueprint $table ) {
             $table->bigIncrements('id');
@@ -235,7 +232,7 @@ class GraphGenerator extends AbstractGenerator
             //$table->temporary();
           //  $table->unique(['source', 'target', 'link_type']);
            // $table->index(['source','target']);
-            $table->index('target');
+           // $table->index('target');
         });
 
         /* populating the nodes table */
@@ -250,10 +247,10 @@ class GraphGenerator extends AbstractGenerator
                 If we need to build the table, Insert into the node table, all the nodes possible
             */
             if( $visible_node_types[$index] )
-                DB::statement("INSERT INTO {$node_table}(type,value,size,sum_weight) SELECT distinct ?,`{$subject}`,0,0 from {$cache_table}", [$index]);
+                ZermeloDatabase::connection()->statement("INSERT INTO {$node_table}(type,value,size,sum_weight) SELECT distinct ?,`{$subject}`,0,0 from {$this->cache->getTableName()}", [$index]);
         }
 
-        DB::statement("UPDATE {$node_table} A SET A.id = A.id-1;");
+        ZermeloDatabase::connection()->statement("UPDATE {$node_table} A SET A.id = A.id-1;");
 
         foreach ($weights_found as $index => $weight) {
             $link_types[$index] = [
@@ -273,13 +270,13 @@ class GraphGenerator extends AbstractGenerator
                         }
 
                         if( $visible_link_types[$index] )
-                            DB::statement("INSERT INTO {$link_table}(source,target,link_type,weight)
+                            ZermeloDatabase::connection()->statement("INSERT INTO {$link_table}(source,target,link_type,weight)
                                             SELECT
                                             A.id as source,
                                             B.id as target,
                                             ? as link_type,
                                             sum(COALESCE(`{$weight}`,0)) as weight
-                                            FROM {$cache_table} as MASTER
+                                            FROM {$this->cache->getTableName()} as MASTER
                                             LEFT JOIN {$node_table} AS A on (MASTER.`{$ASubject['field']}` = A.value and A.type = ?)
                                             LEFT JOIN {$node_table} AS B on (MASTER.`{$BSubject['field']}` = B.value and B.type = ?)
                                             group by A.id, B.id
@@ -297,13 +294,13 @@ class GraphGenerator extends AbstractGenerator
                 */
                 $AIndex = 0;
                 $ASubject = $node_types[0];
-                DB::statement("INSERT INTO {$link_table}(source,target,link_type,weight)
+                ZermeloDatabase::connection()->statement("INSERT INTO {$link_table}(source,target,link_type,weight)
                                 SELECT
                                 A.id as source,
                                 null as target,
                                 ? as link_type,
                                 sum(COALESCE(`{$weight}`,0)) as weight
-                                FROM {$cache_table} as MASTER
+                                FROM {$this->cache->getTableName()} as MASTER
                                 INNER JOIN {$node_table} AS A on (MASTER.`{$ASubject['field']}` = A.value and A.type = ?)
                                 group by A.id
                                 HAVING sum(COALESCE(`{$weight}`,0)) > 0
@@ -318,14 +315,14 @@ class GraphGenerator extends AbstractGenerator
             Calculate the sum_weight per each node.
             This is cross-SQL friendly
         */
-        DB::statement("CREATE TABLE {$weight_table} AS
+        ZermeloDatabase::connection()->statement("CREATE TABLE {$weight_table} AS
             SELECT A.id,sum(COALESCE(B.weight,0) + COALESCE(C.weight,0)) as sum_weight FROM {$node_table} AS A
             LEFT JOIN  {$link_table} AS B ON B.source = A.id
             LEFT JOIN  {$link_table} AS C ON C.target = A.id
             GROUP BY A.id;
         ");
-        DB::statement("ALTER TABLE {$weight_table} add primary key(id);");
-        DB::statement("UPDATE {$node_table} AS A 
+        ZermeloDatabase::connection()->statement("ALTER TABLE {$weight_table} add primary key(id);");
+        ZermeloDatabase::connection()->statement("UPDATE {$node_table} AS A 
                             SET 
                                 A.sum_weight = (SELECT sum_weight from {$weight_table} AS B WHERE B.id = A.id),
                                 A.degree = (SELECT count(distinct C.source, C.target) from {$link_table} as C WHERE (C.source = A.id OR C.target = A.id) AND (C.source IS NOT NULL and C.target IS NOT NULL))
@@ -333,13 +330,13 @@ class GraphGenerator extends AbstractGenerator
         ;");
 
         /* scale the size by the min/max of that type */
-        $results = DB::select("select type, min(sum_weight) as min, max(sum_weight) as max, (max(sum_weight) - min(sum_weight)) as localize_max from {$node_table} group by type order by type");
+        $results = ZermeloDatabase::connection()->select("select type, min(sum_weight) as min, max(sum_weight) as max, (max(sum_weight) - min(sum_weight)) as localize_max from {$node_table} group by type order by type");
         foreach ($results as $index => $result) {
             $type = $result->type;
             $min = $result->min;
             $max = $result->max;
             $local_max = $result->localize_max;
-            DB::statement("UPDATE {$node_table} SET size = COALESCE(((sum_weight - ?) / ?) * 100,0) WHERE type = ?", [$min, $local_max, $type]);
+            ZermeloDatabase::connection()->statement("UPDATE {$node_table} SET size = COALESCE(((sum_weight - ?) / ?) * 100,0) WHERE type = ?", [$min, $local_max, $type]);
         }
 
 //        DB::statement("DROP TABLE IF EXISTS {$node_table}");
@@ -360,7 +357,7 @@ class GraphGenerator extends AbstractGenerator
         /*
         If there is a filter, lets apply it to each column
          */
-        $filter = $this->report->getInput('filter');
+        $filter = $this->cache->getReport()->getInput('filter');
         if ($filter && is_array($filter)) {
             $associated_filter = [];
             foreach($filter as $f=>$item)
@@ -373,7 +370,7 @@ class GraphGenerator extends AbstractGenerator
             $this->addFilter($associated_filter);
         }
 
-        $orderBy = $this->report->getInput('order') ?? [];
+        $orderBy = $this->cache->getReport()->getInput('order') ?? [];
         $associated_orderby = [];
         foreach ($orderBy as $order) {
             $orderKey = key($order);
@@ -384,14 +381,14 @@ class GraphGenerator extends AbstractGenerator
 
 
 
-        if ($this->report->getInput('node_types') && is_array($this->report->getInput('node_types'))) {
-            $this->onlyNodeTypes($this->report->getInput('node_types'));
+        if ($this->cache->getReport()->getInput('node_types') && is_array($this->cache->getReport()->getInput('node_types'))) {
+            $this->onlyNodeTypes($this->cache->getReport()->getInput('node_types'));
         }
-        if ($this->report->getInput('link_types') && is_array($this->report->getInput('link_types'))) {
-            $this->onlyLinkTypes($this->report->getInput('link_types'));
+        if ($this->cache->getReport()->getInput('link_types') && is_array($this->cache->getReport()->getInput('link_types'))) {
+            $this->onlyLinkTypes($this->cache->getReport()->getInput('link_types'));
         }
 
-        return $this->graphTable($this->report->SUBJECTS,$this->report->WEIGHTS);
+        return $this->graphTable($this->cache->getReport()->SUBJECTS,$this->cache->getReport()->WEIGHTS);
 
     }
 
