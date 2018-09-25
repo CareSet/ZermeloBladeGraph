@@ -13,14 +13,14 @@ use CareSet\Zermelo\Interfaces\ControllerInterface;
 use CareSet\Zermelo\Models\DatabaseCache;
 use CareSet\Zermelo\Models\ZermeloReport;
 use CareSet\ZermeloBladeGraph\GraphGenerator;
+use CareSet\ZermeloBladeGraph\Models\CachedGraphReport;
 
 class ApiController implements ControllerInterface
 {
     public function show( ZermeloReport $report )
     {
-
-        $cacheInterface = new DatabaseCache();
-        $generatorInterface = new GraphGenerator( $cacheInterface );
+        $cache = new CachedGraphReport( $report );
+        $generatorInterface = new GraphGenerator( $cache );
         return $generatorInterface->toJson( $report );
     }
 
