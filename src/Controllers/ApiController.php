@@ -10,7 +10,6 @@ namespace CareSet\ZermeloBladeGraph\Controllers;
 
 
 use CareSet\Zermelo\Interfaces\ControllerInterface;
-use CareSet\Zermelo\Models\DatabaseCache;
 use CareSet\Zermelo\Models\ZermeloReport;
 use CareSet\ZermeloBladeGraph\GraphGenerator;
 use CareSet\ZermeloBladeGraph\Models\CachedGraphReport;

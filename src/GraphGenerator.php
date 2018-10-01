@@ -3,17 +3,9 @@
 namespace CareSet\ZermeloBladeGraph;
 
 use CareSet\Zermelo\Interfaces\CacheInterface;
-use CareSet\Zermelo\Interfaces\GeneratorInterface;
 use CareSet\Zermelo\Models\AbstractGenerator;
 use CareSet\Zermelo\Models\DatabaseCache;
 use CareSet\Zermelo\Models\ZermeloDatabase;
-use CareSet\Zermelo\Models\ZermeloReport;
-use CareSet\Zermelo\Exceptions\InvalidDatabaseTableException;
-use CareSet\Zermelo\Exceptions\InvalidHeaderFormatException;
-use CareSet\Zermelo\Exceptions\InvalidHeaderTagException;
-use CareSet\Zermelo\Exceptions\UnexpectedHeaderException;
-use CareSet\Zermelo\Exceptions\UnexpectedMapRowException;
-use CareSet\ZermeloBladeGraph\Models\CachedGraphReport;
 use \DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -24,7 +16,7 @@ class GraphGenerator extends AbstractGenerator
     private $_link_types = null;
     protected $cache = null;
 
-    public function __construct( CachedGraphReport $cache )
+    public function __construct( DatabaseCache $cache )
     {
         $this->cache = $cache;
     }
@@ -34,12 +26,12 @@ class GraphGenerator extends AbstractGenerator
 
         $cache_key = $this->cache->keygen();
         
-        $node_table = config("zermelo.ZERMELO_DB") . ".GraphNode_{$cache_key}";
-        $link_table = config("zermelo.ZERMELO_DB") . ".GraphLinks_{$cache_key}";
+        $node_table = config("zermelo.ZERMELO_DB") . ".GraphNode{$cache_key}";
+        $link_table = config("zermelo.ZERMELO_DB") . ".GraphLinks{$cache_key}";
    
-        $node_limit_finder =config("zermelo.ZERMELO_DB") . ".NFinalGraphNode_{$cache_key}";
-        $limit_node_table = config("zermelo.ZERMELO_DB") . ".FinalGraphNode_{$cache_key}";
-        $limit_link_table = config("zermelo.ZERMELO_DB") . ".FinalGraphLinks_{$cache_key}";
+        $node_limit_finder =config("zermelo.ZERMELO_DB") . ".NFinalGraphNode{$cache_key}";
+        $limit_node_table = config("zermelo.ZERMELO_DB") . ".FinalGraphNode{$cache_key}";
+        $limit_link_table = config("zermelo.ZERMELO_DB") . ".FinalGraphLinks{$cache_key}";
 
         $fields = ZermeloDatabase::getTableColumnDefinition( $this->cache->getTableName() );
         $node_index = 0;
@@ -183,7 +175,7 @@ class GraphGenerator extends AbstractGenerator
 
         $database = config("zermelo.ZERMELO_DB");
 
-        $weight_table = $database . ".GraphWeight_{$cache_key}";
+        $weight_table = $database . ".GraphWeight{$cache_key}";
 
         /*
             Determine the subjects and the weights column
@@ -338,12 +330,6 @@ class GraphGenerator extends AbstractGenerator
             $local_max = $result->localize_max;
             ZermeloDatabase::connection()->statement("UPDATE {$node_table} SET size = COALESCE(((sum_weight - ?) / ?) * 100,0) WHERE type = ?", [$min, $local_max, $type]);
         }
-
-//        DB::statement("DROP TABLE IF EXISTS {$node_table}");
-//        DB::statement("DROP TABLE IF EXISTS {$link_table}");
-//        DB::statement("DROP TABLE IF EXISTS {$weight_table}");
-
-
     }
 
     /**
