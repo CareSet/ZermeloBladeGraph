@@ -97,14 +97,14 @@ var passthrough_params = {!! $presenter->getReport()->getRequestFormInput( true 
 var merge_get_params = {
     'token': '{{ $presenter->getToken() }}',
 };
-var merge = $.extend({}, passthrough_params, merge_get_params)
-
+var merge = $.extend({}, passthrough_params, merge_get_params);
+var param = decodeURIComponent( $.param(merge) );
 
 function scaleBetween(unscaledNum, minAllowed, maxAllowed, min, max) {
       return (maxAllowed - minAllowed) * (unscaledNum - min) / (max - min) + minAllowed;
 }
 
-$.get(json_url, merge, function(graph, json_textStatus, json_jqXHR ) {
+$.get(json_url, param, function(graph, json_textStatus, json_jqXHR ) {
 
     if(typeof graph != 'object')
     {
