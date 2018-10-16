@@ -20,7 +20,7 @@ class ApiController implements ControllerInterface
     {
         $cache = new CachedGraphReport( $report );
         $generatorInterface = new GraphGenerator( $cache );
-        return $generatorInterface->toJson( $report );
+        return $generatorInterface->toJson();
     }
 
     public function prefix(): string
