@@ -71,9 +71,11 @@ class GraphGenerator extends AbstractGenerator
             'node_types' => array_values($this->cache->getNodeTypes()),
             'link_types' => array_values($this->cache->getLinkTypes()),
             'links' => $links,
-            'nodes' => $nodes
-            ];
-
+            'nodes' => $nodes,
+            'cache_meta_generated_this_request' => $this->cache->getGeneratedThisRequest(),
+            'cache_meta_last_generated' => $this->cache->getLastGenerated(),
+            'cache_meta_expire_time' => $this->cache->getExpireTime(),
+            'cache_meta_cache_enabled' => $this->cache->getReport()->isCacheEnabled()
+        ];
     }
-
 }

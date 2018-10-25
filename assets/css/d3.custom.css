@@ -8,21 +8,21 @@ html,body {
     height:100%;
 }
 
-.view_contents {
+#graph-container {
     padding-top: 0px;
-    margin-bottom: 0px;
-    width: 100%;
-}
-.force_visual {
     height:100%;
     width:100%;
 }
-
 
 .cursor {
     fill: none;
     stroke: brown;
     pointer-events: none;
+}
+
+.large.tooltip-inner {
+    max-width: 350px;
+    width: 350px;
 }
 
 text.node-label
@@ -32,18 +32,6 @@ text.node-label
     text-shadow: 0px 0px 4px #fff;
 }
 
-div.gui-buttons
-{
-    position: absolute;
-    right: 10px;
-    top: 10px;
-}
-
-div.gui-buttons > button
-{
-    padding: 0px 10px 0px 10px;
-    line-height: 20px;
-}
 
 text.node-label
 {
@@ -69,10 +57,35 @@ div.tooltip {
 .node.transparent, .link.transparent, g.transparent
 {
     /*visibility: hidden;*/
-    opacity: 0.2 !important;
+    opacity: 0.3 !important;
 }
 
 .node_type_name, .link_type_name
 {
     margin-left: 10px;
+}
+
+.dropdown-item.info-only, .dropdown-item.info-only:hover, .dropdown-item.info-only:focus, .dropdown-item.info-only:active {
+    text-decoration: none;
+    background-color: transparent !important;
+    color: #818182;
+}
+
+.loader {
+    text-align: center;
+    border: 16px solid #f3f3f3; /* Light grey */
+    border-top: 16px solid #3498db; /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.no-padding-left {
+    padding-left: 0px;
 }
