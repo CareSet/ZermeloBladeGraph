@@ -10,6 +10,12 @@ return [
      */
     'GRAPH_URI_PREFIX'=>env("GRAPH_URI_PREFIX","ZermeloGraph"),
 
+
+    /**
+     * Middleware on the graph web routes
+     */
+    'MIDDLEWARE' => env("MIDDLEWARE", [ "web" ]),
+
     /**
      * The template the controller will use to render the report
      * This is used in WebController implementation of ControllerInterface@show method

@@ -82,12 +82,19 @@ Class ServiceProvider extends AbstractZermeloProvider
      */
     protected function routeConfiguration()
     {
+        $middleware = config('zermelobladegraph.MIDDLEWARE',[ 'web' ]);
+        $middlewareString = "";
+        foreach ( $middleware as $m ) {
+            $middlewareString .= "$m,";
+        }
+        $middlewareString = rtrim($middlewareString,",");
+
         return [
             'namespace' => 'CareSet\ZermeloBladeGraph\Http\Controllers',
             //  'domain' => config('zermelo.domain', null),
             'as' => 'zermelo.graph.',
             'prefix' => config( 'zermelobladegraph.GRAPH_URI_PREFIX' ),
-            'middleware' => 'web',
+            'middleware' => $middlewareString,
         ];
     }
 }
