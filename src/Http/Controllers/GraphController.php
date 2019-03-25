@@ -1,17 +1,16 @@
 <?php
 
-namespace CareSet\ZermeloBladeGraph\Controllers;
+namespace CareSet\ZermeloBladeGraph\Http\Controllers;
 
-use CareSet\Zermelo\Interfaces\ControllerInterface;
-use CareSet\Zermelo\Models\ZermeloReport;
-use CareSet\ZermeloBladeGraph\Models\GraphPresenter;
-use DB;
+use CareSet\Zermelo\Http\Requests\GraphReportRequest;
+use CareSet\ZermeloBladeGraph\GraphPresenter;
 use Illuminate\Support\Facades\Auth;
 
-class WebController implements ControllerInterface
+class GraphController
 {
-    public function show( ZermeloReport $report )
+    public function show( GraphReportRequest $request )
     {
+        $report = $request->buildReport();
         $presenter = new GraphPresenter( $report );
         $presenter->setApiPrefix( api_prefix() );
         $presenter->setGraphPath( config('zermelobladegraph.GRAPH_URI_PREFIX') );
@@ -27,10 +26,5 @@ class WebController implements ControllerInterface
         }
 
         return view( $view, [ 'presenter' => $presenter ] );
-    }
-
-    public function prefix(): string
-    {
-        return config( "zermelobladegraph.GRAPH_URI_PREFIX", "" );
     }
 }

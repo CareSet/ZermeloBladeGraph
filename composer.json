@@ -1,6 +1,5 @@
 {
     "name": "careset/zermelobladegraph",
-    "version": "0.0.1",
     "require": {
         "php": ">=7.0.0"
     },
@@ -10,9 +9,6 @@
         }
     },
     "extra": {
-         "branch-alias": {
-            "dev-master": "0.0.1-dev"
-        },
 	    "laravel": {
 	        "providers": [
 	            "CareSet\\ZermeloBladeGraph\\ServiceProvider"

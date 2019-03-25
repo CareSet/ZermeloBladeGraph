@@ -1,9 +1,9 @@
 <?php
 
 namespace App\Reports;
-use CareSet\Zermelo\Models\ZermeloReport;
+use CareSet\Zermelo\Reports\Graph\AbstractGraphReport;
 
-class DocGraphReport extends ZermeloReport
+class DocGraphReport extends AbstractGraphReport
 {
 
     const REPORT_NAME 	= "Doc Graph";
@@ -67,7 +67,7 @@ class DocGraphReport extends ZermeloReport
      * Columns cannot be added or removed
      *
      */
-    public function MapRow(array $row) :array
+    public function MapRow(array $row, int $row_number) :array
     {
 
         /*

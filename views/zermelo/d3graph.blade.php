@@ -66,7 +66,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="col-lg" id="graph-container" ref="graphContainer">
+            <div class="col-lg-9" id="graph-container" ref="graphContainer">
                 <div id="loader" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
                     <div class="modal-dialog modal-sm modal-dialog-centered">
                         <div class="loader"></div>
