@@ -3,15 +3,12 @@
 namespace App\Reports;
 use CareSet\Zermelo\Reports\Graph\AbstractGraphReport;
 
-class DocGraphReport extends AbstractGraphReport
+class GraphTest extends AbstractGraphReport
 {
 
-    const REPORT_NAME 	= "Doc Graph";
-    const DESCRIPTION 	= "Example Report Description";
 
-    public $SUBJECTS = ['npi','docgraph_drg'];
-    public $WEIGHTS = ['patient_count','claim_count','total_utilization_day_count','average_medicare_payment','average_total_charge_amount'];
-
+    public $SUBJECTS = ['card','color','person'];
+    public $WEIGHTS= [];
 
     /**
      * Header Format 'auto-detection' can be changed per report.
@@ -57,7 +54,22 @@ class DocGraphReport extends AbstractGraphReport
      **/
     public function GetSQL()
     {
-        $sql = "SELECT * FROM zermelo_docgraph.docgraph";
+        $sql = "
+SELECT
+	`source_id`, `source_name`, `source_size`, 
+	`source_type`, `source_group`, 
+	`source_longitude`, `source_latitude`, 
+	`source_img`, 
+	`target_id`, `target_name`, `target_size`, 
+	`target_type`, `target_group`, 
+	`target_longitude`, `target_latitude`, 
+	`target_img`, 
+	`weight`, `link_type`, 
+	`query_num`
+
+
+FROM testdata.graphdata_nodetypetests
+";
         return $sql;
     }
 
@@ -112,7 +124,7 @@ class DocGraphReport extends AbstractGraphReport
     */
     public function GetReportName(): string
     {
-        return self::REPORT_NAME;
+	return("Card Relations");
     }
 
     /*
@@ -121,7 +133,7 @@ class DocGraphReport extends AbstractGraphReport
     */
     public function getReportDescription(): string
     {
-        return self::DESCRIPTION;
+        return("Shows how a card related to other cards and entities");;
     }
 
 }
