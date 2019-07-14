@@ -1,9 +1,14 @@
 <?php
+/*	
+	This report has nodes that appear in more than one group, which should 
+	work by choosing the last group that was listed for the node...
+	but which shoudl cause a warning..
 
+*/
 namespace App\Reports;
 use CareSet\Zermelo\Reports\Graph\AbstractGraphReport;
 
-class ShouldError_GroupMismatch extends AbstractGraphReport
+class ShouldWarn_GroupMismatch extends AbstractGraphReport
 {
 
 

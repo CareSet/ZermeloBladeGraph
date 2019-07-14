@@ -1,5 +1,12 @@
 <?php
+/*
+	In this report one node_id (source_id/target_id) has more than one type_id
+	This should cause an error..
 
+	If you have a node that is really more than one type, you need to create a hyprid type...
+	too much front end functionality relies on having one type... so this has to cause an error and not a warning..
+
+*/
 namespace App\Reports;
 use CareSet\Zermelo\Reports\Graph\AbstractGraphReport;
 

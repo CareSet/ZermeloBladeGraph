@@ -1,5 +1,9 @@
 <?php
+/*
+	The same node has two different Lat and Lon values.
+	This should cause an error...
 
+*/
 namespace App\Reports;
 use CareSet\Zermelo\Reports\Graph\AbstractGraphReport;
 

@@ -1,5 +1,9 @@
 <?php
+/*
+	In this report several node_id (source_id/target_id) have different names one different rows.
+	This should cause an error
 
+*/
 namespace App\Reports;
 use CareSet\Zermelo\Reports\Graph\AbstractGraphReport;
 
