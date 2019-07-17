@@ -33,7 +33,7 @@ You will need to import the data under examples/data/ into a database called gra
 ### Basic functioning of the graph reporting system: 
 
 First, in order to get a graph report, you must return one or several SQL statements that will respect that expected data structure for the Graph Reporting engine, like so: 
-
+```
 CREATE TABLE `graphdata_nodetypetests` (
   `source_id` varchar(50) NOT NULL,
   `source_name` varchar(255) NOT NULL,
@@ -55,6 +55,7 @@ CREATE TABLE `graphdata_nodetypetests` (
   `link_type` varchar(255) NOT NULL,
   `query_num` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+```
 
 With the following rules applied. 
 Each node should be distinctive, by which I mean that the following rules should be followed: 
