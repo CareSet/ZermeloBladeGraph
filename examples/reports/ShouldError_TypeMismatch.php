@@ -75,7 +75,7 @@ SELECT
 	`query_num`
 
 
-FROM graph_testdata.shoulderror_type_mismatch
+FROM testdata.shoulderror_type_mismatch
 ";
         return $sql;
     }

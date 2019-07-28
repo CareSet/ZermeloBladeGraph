@@ -72,7 +72,7 @@ SELECT
 	`query_num`
 
 
-FROM graph_testdata.shoulderror_different_latlon
+FROM testdata.shoulderror_different_latlon
 ";
         return $sql;
     }

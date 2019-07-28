@@ -73,7 +73,7 @@ SELECT
 	`query_num`
 
 
-FROM graph_testdata.shoulderror_group_mismatch
+FROM testdata.shoulderror_group_mismatch
 ";
         return $sql;
     }
