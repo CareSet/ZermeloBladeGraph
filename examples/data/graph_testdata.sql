@@ -330,6 +330,9 @@ ALTER TABLE `shoulderror_id_name_mismatch`
 --
 ALTER TABLE `shoulderror_type_mismatch`
   ADD UNIQUE KEY `source_id` (`source_id`,`target_id`);
+
+UPDATE `graphdata_nodetypetests` SET `source_img` = NULL 
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
