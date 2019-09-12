@@ -10,32 +10,32 @@
 	
 
     	<!-- standard styles -->
-	<link type="text/css" rel="stylesheet" href="/css/bootstrap.4.3.1.min.css">
-    	<link type="text/css" rel="stylesheet" href="/fontawesome/css/all.css">
+	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/bootstrap.4.3.1.min.css">
+    	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/fontawesome/css/all.css">
 
-    	<link type="text/css" rel="stylesheet" href="/css/colors.css">
-    	<link type="text/css" rel="stylesheet" href="/css/taxonomyChooser.css">
+    	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/colors.css">
+    	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/taxonomyChooser.css">
 	        <!-- custom css -->
-        <link type="text/css" rel="stylesheet" href="/css/colors.css"/>
-        <link type="text/css" rel="stylesheet" href="/css/noselect.css"/>
-        <link type="text/css" rel="stylesheet" href="/css/print.css"/>
-        <link type="text/css" rel="stylesheet" href="/css/floating.feedback.css"/>
+        <link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/colors.css"/>
+        <link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/noselect.css"/>
+        <link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/print.css"/>
+        <link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/floating.feedback.css"/>
 
     	<!-- standard javascript -->
-    	<script type="text/javascript" language="javascript" src="/js/jquery-3.4.1.min.js"></script>
-	<script type="text/javascript" src="/js/bootstrap.4.3.1.min.js"></script>
+    	<script type="text/javascript" language="javascript" src="/vendor/CareSet/zermelobladegraph/js/jquery-3.4.1.min.js"></script>
+	<script type="text/javascript" src="/vendor/CareSet/zermelobladegraph/js/bootstrap.4.3.1.min.js"></script>
 
-  <script type='text/javascript' language='javascript' src='/js/d3.3.5.17.min.js'></script>
-	<script type="text/javascript" src="/js/saveSvgAsPng.js"></script>
+  <script type='text/javascript' language='javascript' src='/vendor/CareSet/zermelobladegraph/js/d3.3.5.17.min.js'></script>
+	<script type="text/javascript" src="/vendor/CareSet/zermelobladegraph/js/saveSvgAsPng.js"></script>
 
 
 	<!-- custom javascript -->
-	<script type="text/javascript" src="/js/util.js"></script>
-	<script type="text/javascript" src="/js/careset_api.js"></script>
-  	<script type="text/javascript" src="/js/html2canvas.js"></script>
+	<script type="text/javascript" src="/vendor/CareSet/zermelobladegraph/js/util.js"></script>
+	<script type="text/javascript" src="/vendor/CareSet/zermelobladegraph/js/careset_api.js"></script>
+  	<script type="text/javascript" src="/vendor/CareSet/zermelobladegraph/js/html2canvas.js"></script>
   
 	<!-- font awesome js -->
-	<script type="text/javascript" language="javascript" src="/fontawesome/js/all.js"></script>
+	<script type="text/javascript" language="javascript" src="/vendor/CareSet/zermelobladegraph/fontawesome/js/all.js"></script>
 
 
 <!-- end dust_html.tpl -->

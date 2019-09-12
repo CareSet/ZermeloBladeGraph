@@ -9,13 +9,6 @@ use Illuminate\Support\Facades\Route;
 
 Class ServiceProvider extends AbstractZermeloProvider
 {
-    protected $controllers = [
-
-        // List your controllers here
-        // this is used to build the routes in the parent class
-        // no longer used, shoudl be removed
-    ];
-
 	protected function onBeforeRegister()
 	{
         /*

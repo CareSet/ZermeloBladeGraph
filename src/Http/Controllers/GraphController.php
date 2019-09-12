@@ -2,29 +2,43 @@
 
 namespace CareSet\ZermeloBladeGraph\Http\Controllers;
 
+use CareSet\Zermelo\Http\Controllers\AbstractWebController;
 use CareSet\Zermelo\Http\Requests\GraphReportRequest;
+use CareSet\Zermelo\Models\Presenter;
 use CareSet\ZermeloBladeGraph\GraphPresenter;
-use Illuminate\Support\Facades\Auth;
 
-class GraphController
+class GraphController extends AbstractWebController
 {
-    public function show( GraphReportRequest $request )
+
+    public  function getViewTemplate()
     {
-        $report = $request->buildReport();
-        $presenter = new GraphPresenter( $report );
-        $presenter->setApiPrefix( api_prefix() );
-        $presenter->setGraphPath( config('zermelobladegraph.GRAPH_URI_PREFIX') );
+        return config("zermelobladegraph.GRAPH_VIEW_TEMPLATE", "" );
+    }
 
-        $user = Auth::guard()->user();
-        if ( $user ) {
-            $view_data['token'] = $user->last_token;
-        }
+    public  function getReportApiPrefix()
+    {
+        return config('zermelobladegraph.GRAPH_URI_PREFIX');
+    }
 
-        $view = $presenter->getGraphView();
-        if (!$view) {
-            $view = config("zermelobladegraph.GRAPH_VIEW_TEMPLATE", "" );
-        }
+    /**
+     * @param $report
+     * @return Presenter
+     *
+     * Build the presenter, push the graph_uri onto the view
+     */
+    public function buildPresenter($report)
+    {
+        $presenter = new Presenter($report);
+        $presenter->pushViewVariable('graph_uri', $this->getGraphUri($report));
 
-        return view( $view, [ 'presenter' => $presenter ] );
+        return $presenter;
+    }
+
+    public function getGraphUri($report)
+    {
+        $parameterString = implode("/", $report->getMergedParameters() );
+        $graph_api_uri = "/{$this->getApiPrefix()}/{$this->getGraphPath()}/{$report->getClassName()}/{$parameterString}";
+        $graph_api_uri = rtrim($graph_api_uri,'/'); //for when there is no parameterString
+        return $graph_api_uri;
     }
 }

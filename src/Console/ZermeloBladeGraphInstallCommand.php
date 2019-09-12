@@ -22,6 +22,6 @@ class ZermeloBladeGraphInstallCommand extends AbstractZermeloInstallCommand
      *
      * @var string
      */
-    protected $signature = 'install:zermelobladegraph
+    protected $signature = 'zermelo:install_zermelobladegraph
                     {--force : Overwrite existing views by default}';
 }

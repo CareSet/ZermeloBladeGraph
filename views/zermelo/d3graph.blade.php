@@ -160,7 +160,7 @@ TODO re-implement using Socket/Wrench
                 <span><small>
 		<ul>
 		<li><a target='_blank' id='get_debug_link' href="">json url</a></li>
-		<li><a target='_blank' id='debug_link' href="$presenter->getGraphUri()">json contents (includes JSON POST results)</a></li>
+		<li><a target='_blank' id='debug_link' href="{{$graph_uri}}">json contents (includes JSON POST results)</a></li>
 		</ul>
                 </small></span>
 -->
@@ -272,7 +272,7 @@ var 	virtual_height = real_height * zoom_factor;
 
 var 	gravityMode = 'centered';
 
-var json_url = '{{ $presenter->getGraphUri() }}';
+var json_url = '{{ $graph_uri }}';
 
 var color = d3.scale.category10();
 
