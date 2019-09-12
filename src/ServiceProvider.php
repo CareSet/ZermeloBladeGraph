@@ -3,6 +3,7 @@
 namespace CareSet\ZermeloBladeGraph;
 
 use CareSet\Zermelo\Models\AbstractZermeloProvider;
+use CareSet\ZermeloBladeGraph\Console\MakeGraphReportCommand;
 use CareSet\ZermeloBladeGraph\Console\ZermeloBladeGraphInstallCommand;
 use Illuminate\Support\Facades\Route;
 
@@ -24,7 +25,8 @@ Class ServiceProvider extends AbstractZermeloProvider
          *  - Exports Assets
          */
         $this->commands([
-            ZermeloBladeGraphInstallCommand::class
+            ZermeloBladeGraphInstallCommand::class,
+            MakeGraphReportCommand::class
         ]);
 
 	    /*
