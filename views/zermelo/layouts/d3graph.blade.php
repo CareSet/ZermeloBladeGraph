@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-    	<title>{{ $presenter->getReport()->getReportName() }}</title>
+    	<title>{{ $report->getReportName() }}</title>
     	<meta name="viewport" content="width=device-width, initial-scale=1.0">
     	<meta name="description" content="Cube is a map of the healthcare system">
     	<meta name="author" content="CareSet Team">
@@ -11,7 +11,7 @@
 
     	<!-- standard styles -->
 	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/bootstrap.4.3.1.min.css">
-    	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/fontawesome/css/all.css">
+    	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/fontawesome-free-5.10.2-web/css/all.css">
 
     	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/colors.css">
     	<link type="text/css" rel="stylesheet" href="/vendor/CareSet/zermelobladegraph/css/taxonomyChooser.css">
@@ -35,7 +35,7 @@
   	<script type="text/javascript" src="/vendor/CareSet/zermelobladegraph/js/html2canvas.js"></script>
   
 	<!-- font awesome js -->
-	<script type="text/javascript" language="javascript" src="/vendor/CareSet/zermelobladegraph/fontawesome/js/all.js"></script>
+	<script type="text/javascript" language="javascript" src="/vendor/CareSet/zermelobladegraph/fontawesome-free-5.10.2-web/js/all.js"></script>
 
 
 <!-- end dust_html.tpl -->

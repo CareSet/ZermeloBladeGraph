@@ -5,7 +5,7 @@
       <div class="col-md-2">
         <div class="card">
           <div class="card-body">
-{{ $presenter->getReport()->getReportName() }}
+{{ $report->getReportName() }}
             <hr>
 
 
@@ -190,8 +190,8 @@ TODO re-implement using Socket/Wrench
 	<div class='col-md-6'>
         			<ol class="breadcrumb">
 					
-						  						<li class='breadcrumb-item'>{{ $presenter->getReport()->getReportName() }}</li>
-						  						<li class="breadcrumb-item active">{{ $presenter->getReport()->getReportDescription() }}</li>
+						  						<li class='breadcrumb-item'>{{ $report->getReportName() }}</li>
+						  						<li class="breadcrumb-item active">{{ $report->getReportDescription() }}</li>
           			</ol>   
 <!-- 
   <div class="form-group float-righ">
