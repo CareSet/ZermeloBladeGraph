@@ -24,4 +24,11 @@ class ZermeloBladeGraphInstallCommand extends AbstractZermeloInstallCommand
      */
     protected $signature = 'zermelo:install_zermelobladegraph
                     {--force : Overwrite existing views by default}';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Install Zermelo Blade Graph report view';
 }

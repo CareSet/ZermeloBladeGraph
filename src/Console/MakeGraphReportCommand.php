@@ -21,7 +21,7 @@ class MakeGraphReportCommand extends Command
      *
      * @var string
      */
-    protected $description = '';
+    protected $description = 'Make a graph report class using the template';
 
 
     /**
