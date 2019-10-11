@@ -1,5 +1,59 @@
 
+<!-- Data View Modal -->
+<div class="modal fade" id="current_data_view" tabindex="-1" role="dialog" aria-labelledby="current_data_view" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form id="sockets-form" method="post">
+                {{ csrf_field() }}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Data Options</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if ($report->hasActiveWrenches())
+                        <div class="row">
+                            <div class="col-5">
+                                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                    @foreach ($report->getActiveWrenches() as $wrench)
+                                        <a class="nav-link {{ ($loop->first) ?  'active' : '' }}" id="v-pills-{{$wrench->id}}-tab" data-toggle="pill" href="#v-pills-{{$wrench->id}}" role="tab" aria-controls="v-pills-{{$wrench->id}}" aria-selected="true">{{ $wrench->wrench_label }}</a>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="col-7">
+                                <div class="tab-content" id="v4-pills-tabContent">
+                                    @foreach ($report->getActiveWrenches() as $wrench )
+                                        <div class="tab-pane fade show {{ ($loop->first) ?  'active' : '' }}" id="v-pills-{{$wrench->id}}" role="tabpanel" aria-labelledby="v-pills-{{$wrench->id}}-tab">
+                                            @foreach ( $wrench->sockets as $socket )
+                                                <div class="custom-control custom-radio">
+                                                    <input {{ $report->isActiveSocket($socket->id) ? 'checked' : '' }} type="radio" data-wrench-id="{{$wrench->id}}" data-socket-id="{{$socket->id}}" id="wrench-{{$wrench->id}}-socket-{{$socket->id}}" name="sockets[{{$wrench->id}}]" value="{{$socket->id}}" data-wrench-label="{{ $wrench->wrench_label }}" data-socket-label="{{$socket->socket_label}}" class="socket custom-control-input">
+                                                    <label class="custom-control-label" for="wrench-{{$wrench->id}}-socket-{{$socket->id}}">{{$socket->socket_label}}</label>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    @else
+                    <!-- we only get here if there are no active wrenches -->
+                        <div class="row">
+                            <div class='col-12'>
+                                No Data Options have been configured for this report
+                            </div>
+                        </div>
+                    @endif
 
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="save-sockets" class="btn btn-primary">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div> <!-- end of data view options modal -->
 		  <div class="container-fluid">
 	  <div class="row">
       <div class="col-md-2">
@@ -23,7 +77,7 @@
     <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
       <div class="card-body">
 <p>
-TODO re-implement using Socket/Wrench
+<button class="view-data-options">Data Options</button>
 <br>
     <input type="checkbox" name="hideLonelyNode" id="hideLonelyNode"  onchange="updateForce();" value="1"> Hide Lonely Node <br/><br/>
 </p>
@@ -248,84 +302,65 @@ TODO re-implement using Socket/Wrench
 		<div style='height: 1000px; display: none;' id='viz'> 
 		</div>
 		<script>
-var svgCSS = "\n\n.emphasis_node {\n        font-size: 27px;\n        stroke:  black;\n        stroke-width:  2px;\n        stroke-opacity:  1;\n        fill:  black;\n        fill-opacity:  1;\n\n	}\n\n.emphasis_nodetext {\n	transform: rotate(-35deg);\n        font-size: 27px;\n        stroke:  black;\n        stroke-width:  2px;\n        stroke-opacity:  1;\n        fill:  black;\n        fill-opacity:  1;\n\n}\n\n.emphasis_link {\n        stroke-opacity:  .9;\n}\n\n.emphasis_link_red {\n        stroke:  red;\n        stroke-opacity:  .9;\n}\n\n.light_node {\n        font-size:  17px;\n        stroke: grey;\n        stroke-width: 2px;\n        stroke-opacity: 0.2;\n        fill: grey;\n        fill-opacity: 0.2;\n}\n\n.light_nodetext {\n	transform: rotate(-35deg);\n        font-size:  17px;\n        stroke: grey;\n        stroke-width: 2px;\n        stroke-opacity: 0.2;\n        fill: grey;\n        fill-opacity: 0.2;\n}\n\n.light_link {\n        stroke-opacity: .2;\n}\n\n.default_node {\n        font-size: 22px;\n        stroke: dimgrey;\n        stroke-width: 2px;\n        stroke-opacity: 0.8;\n        fill: black;\n        fill-opacity: 0.8;\n}\n\n.default_nodetext {\n	transform: rotate(-35deg);\n        font-size: 22px;\n        stroke: dimgrey;\n        stroke-width: 2px;\n        stroke-opacity: 0.8;\n        fill: black;\n        fill-opacity: 0.8;\n}\n\n.default_link {\n        stroke-opacity: .5;\n        stroke-linecap: round;\n\n}\n";
 
-var hoveringTimeout = null;
-var is_currently_search = false;
+            // Data view modal and sockets control
+            $(".view-data-options").click(function(){
+                $('#current_data_view').modal('toggle');
+            });
 
-var linkedByIndex = {};
+            // Socket API payload
+            var sockets = {};
+            var activeWrenchNames = [];
 
-var need_to_load_static_positions = false;
-var static_positions = [];
+            // Refresh sockets on page reload, in case we had options set, and did a "refresh"
+            refresh_sockets();
 
-var found_types = new Map();
-var found_groups = new Map();
-var found_link_types = new Map();
+            function refresh_sockets() {
 
-var 	real_width = 1000,
-    	real_height = 1000;
+                // Get the socket inputs by selecting from socket form, using socket class
+                let form_data = $("#sockets-form .socket").serializeArray();
 
-var 	zoom_factor = 1.5;
+                // Empty sockets array before we refill it
+                sockets = {};
 
-var 	virtual_width = real_width * zoom_factor;
-var 	virtual_height = real_height * zoom_factor;
+                // The active wrnch names are used for download optons to display the data options that are in-use
+                activeWrenchNames = [];
 
-var 	gravityMode = 'centered';
+                jQuery.each( form_data, function( i, field ) {
 
-var json_url = '{{ $graph_uri }}';
+                    // name attribute of input contains wrench id
+                    let name = field.name;
 
-var color = d3.scale.category10();
+                    // socket id is in value attribute
+                    let socketId = field.value;
 
-/*
-	color('throw');
-	color('away');
-	color('all');
-	color('of');
-	color('these');
-	color('colors');
-*/
-var config_data = {"threshold":"10","bolt_config":[{"bolt":"B0LT_npi_team","bolt_value":"npi_hop_RQ17"}]};
+                    // Wrench ID is in brackets, need to parse out
+                    let wrenchId = name.slice(name.indexOf('[') +1,name.indexOf(']'));
 
-var myGravity = 0.04;
-var myGravityXYRatio = 3;
-var myAlpha = 0.5;
+                    // Store the wrenches/sockets in the same format as they would be submitted by form
+                    sockets[wrenchId]= socketId;
 
-var force = d3.layout.force()
-    	.linkDistance(30)
-    	.linkStrength(0.55)
-	.friction(0.7)
-    	.charge(-3000)
-    	.chargeDistance(300)
-    	.theta(0.35)
-    	.gravity(0.04)
-    	.alpha(0.5)
-    	.size([virtual_width, virtual_height]);
+                    // Build the id, which contains both wrench id and socket id
+                    let id = "wrench-"+wrenchId+"-socket-"+socketId;
+
+                    // Now store the labels if we need to display active data options
+                    let wrenchLabel = $('#'+id).attr('data-wrench-label');
+                    let socketLabel = $('#'+id).attr('data-socket-label');
+                    activeWrenchNames.push({
+                        wrenchLabel: wrenchLabel,
+                        socketLabel: socketLabel
+                    });
+                });
+            }
+
+            $("#save-sockets").click( function(e) {
+                // Get the sockets from the Data Options form
+                refresh_sockets();
+                $('#current_data_view').modal('toggle');
+                $("#sockets-form").submit();
+            });
 
 
-var svg = d3.select("#viz").append("svg")
-    	.attr("width", "100%")
-    	.attr("height", "100%")
-	.attr('id','viz_svg');
-
-//lets add our stylesheet..
-svg.append('style').text(svgCSS);
-
-//so that we can see what we are dealing with...
-svg.append("rect")
-    	.attr("width", "100%")
-    	.attr("height", "100%")
-    	.attr("stroke",'grey')
-    	.attr("fill", "white");
-
-var graph; //this needs to be a global for functions to work...
-var link;
-var node;
-
-var first_node_ceiling = 200;
-var first_links_ceiling = 5000;
-var second_node_ceiling = 500;
-var second_links_ceiling = 10000;
-var initial_settle_time = 30000; //in milliseconds.. so 1000 is 1 second. 
 
 //we need the debug link to continue to work, even though we are not POSTing json to the url in question...
 //so we are going to override the debug links onclick and make it put the data in a new window...
@@ -339,399 +374,515 @@ $("#debug_link").on('click', function(){
 	return(false);
 });
 
-$.post(json_url, config_data, function(json_data, json_textStatus, json_jqXHR ) {
+
+    var svgCSS = "\n\n.emphasis_node {\n        font-size: 27px;\n        stroke:  black;\n        stroke-width:  2px;\n        stroke-opacity:  1;\n        fill:  black;\n        fill-opacity:  1;\n\n	}\n\n.emphasis_nodetext {\n	transform: rotate(-35deg);\n        font-size: 27px;\n        stroke:  black;\n        stroke-width:  2px;\n        stroke-opacity:  1;\n        fill:  black;\n        fill-opacity:  1;\n\n}\n\n.emphasis_link {\n        stroke-opacity:  .9;\n}\n\n.emphasis_link_red {\n        stroke:  red;\n        stroke-opacity:  .9;\n}\n\n.light_node {\n        font-size:  17px;\n        stroke: grey;\n        stroke-width: 2px;\n        stroke-opacity: 0.2;\n        fill: grey;\n        fill-opacity: 0.2;\n}\n\n.light_nodetext {\n	transform: rotate(-35deg);\n        font-size:  17px;\n        stroke: grey;\n        stroke-width: 2px;\n        stroke-opacity: 0.2;\n        fill: grey;\n        fill-opacity: 0.2;\n}\n\n.light_link {\n        stroke-opacity: .2;\n}\n\n.default_node {\n        font-size: 22px;\n        stroke: dimgrey;\n        stroke-width: 2px;\n        stroke-opacity: 0.8;\n        fill: black;\n        fill-opacity: 0.8;\n}\n\n.default_nodetext {\n	transform: rotate(-35deg);\n        font-size: 22px;\n        stroke: dimgrey;\n        stroke-width: 2px;\n        stroke-opacity: 0.8;\n        fill: black;\n        fill-opacity: 0.8;\n}\n\n.default_link {\n        stroke-opacity: .5;\n        stroke-linecap: round;\n\n}\n";
+
+    var hoveringTimeout = null;
+    var is_currently_search = false;
+
+    var linkedByIndex = {};
+
+    var need_to_load_static_positions = false;
+    var static_positions = [];
+
+    var found_types = new Map();
+    var found_groups = new Map();
+    var found_link_types = new Map();
+
+    var 	real_width = 1000,
+        real_height = 1000;
+
+    var 	zoom_factor = 1.5;
+
+    var 	virtual_width = real_width * zoom_factor;
+    var 	virtual_height = real_height * zoom_factor;
+
+    var 	gravityMode = 'centered';
+
+    var json_url = '{{ $graph_uri }}';
+
+    var color = d3.scale.category10();
+
+    /*
+        color('throw');
+        color('away');
+        color('all');
+        color('of');
+        color('these');
+        color('colors');
+    */
+    var config_data = {
+        "threshold":"10",
+        "sockets": sockets
+    };
+
+    var myGravity = 0.04;
+    var myGravityXYRatio = 3;
+    var myAlpha = 0.5;
+
+    var force = d3.layout.force()
+        .linkDistance(30)
+        .linkStrength(0.55)
+        .friction(0.7)
+        .charge(-3000)
+        .chargeDistance(300)
+        .theta(0.35)
+        .gravity(0.04)
+        .alpha(0.5)
+        .size([virtual_width, virtual_height]);
 
 
-	graph = json_data;	//lets use the global from now on..
+    var svg = null;
+    var graph; //this needs to be a global for functions to work...
+    var link;
+    var node;
 
-	//lets do a little work to make sure that this is ok..
-	if(typeof graph.summary === 'undefined'){
-		console.log('there is a problem with the graph data. Take a look: ');
-		console.log(graph);
-		return(false);
-	}
+    var first_node_ceiling = 200;
+    var first_links_ceiling = 5000;
+    var second_node_ceiling = 500;
+    var second_links_ceiling = 10000;
+    var initial_settle_time = 30000; //in milliseconds.. so 1000 is 1 second.
 
-	
+    $.post(json_url, config_data, function (json_data, json_textStatus, json_jqXHR) {
+
+        svg = d3.select("#viz").append("svg")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr('id','viz_svg');
+
+//lets add our stylesheet..
+        svg.append('style').text(svgCSS);
+
+//so that we can see what we are dealing with...
+        svg.append("rect")
+            .attr("width", "100%")
+            .attr("height", "100%")
+            .attr("stroke",'grey')
+            .attr("fill", "white");
+
+        graph = json_data;	//lets use the global from now on..
+
+        //lets do a little work to make sure that this is ok..
+        if (typeof graph.summary === 'undefined') {
+            console.log('there is a problem with the graph data. Take a look: ');
+            console.log(graph);
+            return (false);
+        }
+
+
 //Lets check to see if this Graph is simple enough to display....
 //if not... then lets show another view...
 
-	if(graph.summary.nodes_count > second_node_ceiling ){
-		if(confirm('This graph has ' + graph.summary.nodes_count + ' nodes, which is way to many nodes to show at one time... are you sure you want to continue? ')){
-			//we do nothing... which will end up showing everything!!
-		}else{	
-			//the user does not want to continue... let them see why...
-			tooManyTooShow(graph);
-			return(false);
-		}
-	}else{
-		if(graph.summary.links_count > second_links_ceiling){
-			if(confirm('This graph has ' + graph.summary.links_count + 'edges, which is way to many connections to show at one time... are you sure you want to continue? ')){
-				//we do nothing... which will end up showing everything!!
-			}else{	
-				//the user does not want to continue... let them see why...
-				tooManyTooShow(graph);
-				return(false);
-			}
-		}
-	}	
-
-	mySummary = graph.summary;
-
-/**
-***     DATA stuff
-**/
-
-	//create a connectedness lookup
-
-        //in order to size the links properly we must understand the range
-        //of possible values this gets us the maximum...
-        var maxLinkValue = 0;          var minLinkValue = 1000000000;
-        for (var i = 0; i < graph.links.length; i++) {                  
-		if(graph.links[i].weight > maxLinkValue){
-                        maxLinkValue = graph.links[i].weight;
+        if (graph.summary.nodes_count > second_node_ceiling) {
+            if (confirm('This graph has ' + graph.summary.nodes_count + ' nodes, which is way to many nodes to show at one time... are you sure you want to continue? ')) {
+                //we do nothing... which will end up showing everything!!
+            } else {
+                //the user does not want to continue... let them see why...
+                tooManyTooShow(graph);
+                return (false);
+            }
+        } else {
+            if (graph.summary.links_count > second_links_ceiling) {
+                if (confirm('This graph has ' + graph.summary.links_count + 'edges, which is way to many connections to show at one time... are you sure you want to continue? ')) {
+                    //we do nothing... which will end up showing everything!!
+                } else {
+                    //the user does not want to continue... let them see why...
+                    tooManyTooShow(graph);
+                    return (false);
                 }
-                if(graph.links[i].weight < minLinkValue){
-                        minLinkValue = graph.links[i].weight;
-                }
-		linkedByIndex[graph.links[i].source + "," + graph.links[i].target] = 1;
+            }
         }
 
-      	var widthScale = function() { return 3; };
-	var lengthScale = function() { return 40;};
-        if(minLinkValue != maxLinkValue){
-        //with that maximum in hand, we can use a d3 scale 
-        //to always have the widths go from 1 to 25, where 25 is the max!!
-                var widthScale = d3.scale.linear()
-                        .domain([maxLinkValue/3,maxLinkValue])
-                        .range([10,30]);
+        mySummary = graph.summary;
 
-                var lengthScale = d3.scale.log()
-			.clamp(true)
-                        .domain([maxLinkValue/5,maxLinkValue])
-                        .range([100,10]);
+        /**
+         ***     DATA stuff
+         **/
+
+            //create a connectedness lookup
+
+            //in order to size the links properly we must understand the range
+            //of possible values this gets us the maximum...
+        var maxLinkValue = 0;
+        var minLinkValue = 1000000000;
+        for (var i = 0; i < graph.links.length; i++) {
+            if (graph.links[i].weight > maxLinkValue) {
+                maxLinkValue = graph.links[i].weight;
+            }
+            if (graph.links[i].weight < minLinkValue) {
+                minLinkValue = graph.links[i].weight;
+            }
+            linkedByIndex[graph.links[i].source + "," + graph.links[i].target] = 1;
+        }
+
+        var widthScale = function () {
+            return 3;
+        };
+        var lengthScale = function () {
+            return 40;
+        };
+        if (minLinkValue != maxLinkValue) {
+            //with that maximum in hand, we can use a d3 scale
+            //to always have the widths go from 1 to 25, where 25 is the max!!
+            var widthScale = d3.scale.linear()
+                .domain([maxLinkValue / 3, maxLinkValue])
+                .range([10, 30]);
+
+            var lengthScale = d3.scale.log()
+                .clamp(true)
+                .domain([maxLinkValue / 5, maxLinkValue])
+                .range([100, 10]);
 
         }
 
 
+        force.nodes(graph.nodes)
+            .links(graph.links)
+            .linkDistance(function (d) {
+                my_scaled_length = lengthScale(d.weight);
+                if (my_scaled_length < 90) {
+                    //	console.log(d.weight + ' scaled to ' + my_scaled_length);
+                }
+                return (my_scaled_length);
+            });
 
 
-  	force.nodes(graph.nodes)
-      		.links(graph.links)
-    		.linkDistance(function (d) {  
-			my_scaled_length = lengthScale(d.weight);
-			if(my_scaled_length < 90){
-			//	console.log(d.weight + ' scaled to ' + my_scaled_length);
-			}
-			return(my_scaled_length);
-		});
-	
+        //before adding images or graphics, lets iterate the
+        //layout so that it starts out settled.
+        //this does not seem to do anything
+        /*
+            n = 10000;
+              for (var i = n; i > 0; --i){
+                console.log('init tick' + i);
+                 force.tick();
+            }
+        */
 
-	//before adding images or graphics, lets iterate the 
-	//layout so that it starts out settled.
-	//this does not seem to do anything
-/*
-	n = 10000;
-  	for (var i = n; i > 0; --i){
-		console.log('init tick' + i);		
-	 	force.tick();
-	}
-*/
-	
-	myGravity = myGravity + myGravity;
-	force_settle(initial_settle_time,'end of initial settling'); // a long initial settling
+        myGravity = myGravity + myGravity;
+        force_settle(initial_settle_time, 'end of initial settling'); // a long initial settling
 
-	graph.nodes.forEach(function (o,i) {
-		static_positions[i] = { saved: false };
-	});
+        graph.nodes.forEach(function (o, i) {
+            static_positions[i] = {saved: false};
+        });
 
-	dynamic_resize();
+        dynamic_resize();
 
-	force.drag()
-    	.on("dragend", function(d){
-		this_node = d3.select(this); //this sets the data to be fixed and sets the css class to have 'fixed' all in one step.  
-		node_fix(this_node,d);
-		force_settle(20000,'node finished drag');
-	});
+        force.drag()
+            .on("dragend", function (d) {
+                this_node = d3.select(this); //this sets the data to be fixed and sets the css class to have 'fixed' all in one step.
+                node_fix(this_node, d);
+                force_settle(20000, 'node finished drag');
+            });
 
 
+        /**
+         ***    LEGEND Stuff...
+         **/
+        //lets make a map that contains the actual groups and types that we see in the data...
+        graph.nodes.forEach(function (o, i) {
+            found_types.set(graph.types[o.type].label, o.type);
+            found_groups.set(graph.groups[o.group].name, o.group);
+        });
+
+        //lets do the same for links...
+        graph.links.forEach(function (link, i) {
+            found_link_types.set(graph.link_types[link.link_type].label, link.link_type);
+        });
 
 
-/**
-***	LEGEND Stuff...
-**/
-	//lets make a map that contains the actual groups and types that we see in the data...
-	graph.nodes.forEach(function (o,i) {
-		found_types.set(graph.types[o.type].label,o.type);
-		found_groups.set(graph.groups[o.group].name,o.group);
-	});
+        //the legend is a loop that is going to use math to place the legend...
+        //these are the parameters for this math
 
-	//lets do the same for links...
-	graph.links.forEach(function (link,i) {
-		found_link_types.set(graph.link_types[link.link_type].label,link.link_type);
-	});
+        legend_x = 10;
+        legend_y = 20;
+        symbol_more_x = 20;
+        symbol_more_y = 5;
+        png_more_x = 10;
+        png_more_y = -5;
+        symbol_size = 250;
+        text_more_x = 40;
+        text_more_y = 10;
+        rect_width = 35;
+        rect_height = 10;
+        line_width = 135;
+        line_height = 20;
+        y_drop = 20;
+        y_main_label_drop = 10;
 
-
-	//the legend is a loop that is going to use math to place the legend...
-	//these are the parameters for this math
-
-	legend_x = 10;
-	legend_y = 20;
-	symbol_more_x = 20;
-	symbol_more_y = 5;
-	png_more_x = 10;
-	png_more_y = -5;
-	symbol_size = 250;
-	text_more_x = 40;
-	text_more_y = 10;
-	rect_width = 35;
-	rect_height = 10;
-	line_width = 135;
-	line_height = 20;
-	y_drop = 20;
-	y_main_label_drop = 10;
-
-	svg.append('svg:text')	//text for the label
-		.attr('x', legend_x )
-		.attr('y', legend_y )
-		.text('Node Types:');	//and we put the name in
-	legend_y += y_main_label_drop;
+        svg.append('svg:text')	//text for the label
+            .attr('x', legend_x)
+            .attr('y', legend_y)
+            .text('Node Types:');	//and we put the name in
+        legend_y += y_main_label_drop;
 
 
-	//this loop handles the types, which are coded with shapes
-	found_types.forEach( function(type_index, label) {
-		if(graph.types[type_index].is_img){
+        //this loop handles the types, which are coded with shapes
+        found_types.forEach(function (type_index, label) {
+            if (graph.types[type_index].is_img) {
 
-			svg.append('svg:image')
-                        	.attr("xlink:href",  function() { return '/images/' + graph.types[type_index].img_stub + '.png';}) //the black version of the icons...
-                        	.attr("x", function() { return legend_x + png_more_x;})
-                        	.attr("y", function() { return legend_y + png_more_y;})
-                        	.attr("height", function(){ return symbol_size /10 })
-                        	.attr("width", function(){ return symbol_size /10 });
-
-
-		}else{
-			svg.append("path")
-				.attr("transform", function(d) { return "translate(" + (legend_x + symbol_more_x) + "," + (legend_y + symbol_more_y) + ")"; })
-				.attr('fill', 'black')
-                        	.attr("d", d3.svg.symbol()	//here we get a symbol
-                	        	.size(function() { return symbol_size; })	//how big is the symbol
-        	                	.type(function() { return d3.svg.symbolTypes[type_index]; }));	//and which symbol should we use?
-													//note: we always pass in all of the types in our json data, 
-													//even if we do not use them, so that the symbols remain constant...
-		}
+                svg.append('svg:image')
+                    .attr("xlink:href", function () {
+                        return '/images/' + graph.types[type_index].img_stub + '.png';
+                    }) //the black version of the icons...
+                    .attr("x", function () {
+                        return legend_x + png_more_x;
+                    })
+                    .attr("y", function () {
+                        return legend_y + png_more_y;
+                    })
+                    .attr("height", function () {
+                        return symbol_size / 10
+                    })
+                    .attr("width", function () {
+                        return symbol_size / 10
+                    });
 
 
-		svg.append('svg:text')	//text for the label
-			.attr('x', legend_x + text_more_x)
-			.attr('y', legend_y + text_more_y )
-			.text(label + ' (' + graph.types[type_index].type_count + ' nodes)');	//and we put the name in
-		legend_y += y_drop;
-
-	});
-
-
-	legend_y += y_main_label_drop;
-	svg.append('svg:text')	//text for the label
-		.attr('x', legend_x )
-		.attr('y', legend_y )
-		.text('Edge Types:');	//and we put the name in
-	legend_y += y_drop;
-
-
-
-	found_link_types.forEach( function(link_type_index, label){
-
-		//console.log('index ' + link_type_index + ' label ' + label);
-
-                svg.append('line')      //draws the example line for edge types
-                        .attr('x1',legend_x)
-                        .attr('y1',legend_y + 7 )
-			.attr('x2',legend_x + line_width)
-			.attr('y2',legend_y + 7 )
-			.attr('stroke-width',4) //key not using defaults
-       			.attr('stroke', '#5C5C5C')
-       			.attr('stroke-opacity', .7) //key not using defaults
-			.attr('stroke-linecap', 'round') //key not using defaults
-       			.attr('stroke', function(d){ 
-					return(edgeColorLookup[link_type_index % dasharrayCount] );
-					})
-       			.attr('stroke-dasharray', function(d){ 
-					return(dasharrayLookup[link_type_index % dasharrayCount]);
-					});
-
-                svg.append('svg:text')  //the text for the label
-                        .attr('x', legend_x )
-                        .attr('y', legend_y )
-                        .text(label);   //and here we put the name in
-
-                legend_y += y_drop;
+            } else {
+                svg.append("path")
+                    .attr("transform", function (d) {
+                        return "translate(" + (legend_x + symbol_more_x) + "," + (legend_y + symbol_more_y) + ")";
+                    })
+                    .attr('fill', 'black')
+                    .attr("d", d3.svg.symbol()	//here we get a symbol
+                        .size(function () {
+                            return symbol_size;
+                        })	//how big is the symbol
+                        .type(function () {
+                            return d3.svg.symbolTypes[type_index];
+                        }));	//and which symbol should we use?
+                //note: we always pass in all of the types in our json data,
+                //even if we do not use them, so that the symbols remain constant...
+            }
 
 
+            svg.append('svg:text')	//text for the label
+                .attr('x', legend_x + text_more_x)
+                .attr('y', legend_y + text_more_y)
+                .text(label + ' (' + graph.types[type_index].type_count + ' nodes)');	//and we put the name in
+            legend_y += y_drop;
+
+        });
 
 
-	});
+        legend_y += y_main_label_drop;
+        svg.append('svg:text')	//text for the label
+            .attr('x', legend_x)
+            .attr('y', legend_y)
+            .text('Edge Types:');	//and we put the name in
+        legend_y += y_drop;
 
 
-	legend_y += y_main_label_drop;
-	svg.append('svg:text')	//text for the label
-		.attr('x', legend_x )
-		.attr('y', legend_y )
-		.text('Node Groups:');	//and we put the name in
-	legend_y += y_main_label_drop;
+        found_link_types.forEach(function (link_type_index, label) {
+
+            //console.log('index ' + link_type_index + ' label ' + label);
+
+            svg.append('line')      //draws the example line for edge types
+                .attr('x1', legend_x)
+                .attr('y1', legend_y + 7)
+                .attr('x2', legend_x + line_width)
+                .attr('y2', legend_y + 7)
+                .attr('stroke-width', 4) //key not using defaults
+                .attr('stroke', '#5C5C5C')
+                .attr('stroke-opacity', .7) //key not using defaults
+                .attr('stroke-linecap', 'round') //key not using defaults
+                .attr('stroke', function (d) {
+                    return (edgeColorLookup[link_type_index % dasharrayCount] );
+                })
+                .attr('stroke-dasharray', function (d) {
+                    return (dasharrayLookup[link_type_index % dasharrayCount]);
+                });
+
+            svg.append('svg:text')  //the text for the label
+                .attr('x', legend_x)
+                .attr('y', legend_y)
+                .text(label);   //and here we put the name in
+
+            legend_y += y_drop;
 
 
-	//this loop handles the groups which are coded with colors
-	found_groups.forEach( function(group_index, label) {
-
-		svg.append('rect')	//draws the rectangle
-			.attr('x',legend_x)
-			.attr('y',legend_y)
-			.attr('fill', color(group_index))	//fills it with the groups color
-			.attr('stroke','black') //not using defaults
-			.attr('height', rect_height)
-			.attr('width', rect_width);
-
-		svg.append('svg:text')	//the text for the label
-			.attr('x', legend_x + text_more_x)
-			.attr('y', legend_y + text_more_y )
-			.text(label + ' (' + graph.groups[group_index].group_count + ' nodes)');	//and we put the name in
-
-		legend_y += y_drop;
+        });
 
 
-	});
+        legend_y += y_main_label_drop;
+        svg.append('svg:text')	//text for the label
+            .attr('x', legend_x)
+            .attr('y', legend_y)
+            .text('Node Groups:');	//and we put the name in
+        legend_y += y_main_label_drop;
 
 
-/**
-***	LINK Stuff...
-**/
+        //this loop handles the groups which are coded with colors
+        found_groups.forEach(function (group_index, label) {
+
+            svg.append('rect')	//draws the rectangle
+                .attr('x', legend_x)
+                .attr('y', legend_y)
+                .attr('fill', color(group_index))	//fills it with the groups color
+                .attr('stroke', 'black') //not using defaults
+                .attr('height', rect_height)
+                .attr('width', rect_width);
+
+            svg.append('svg:text')	//the text for the label
+                .attr('x', legend_x + text_more_x)
+                .attr('y', legend_y + text_more_y)
+                .text(label + ' (' + graph.groups[group_index].group_count + ' nodes)');	//and we put the name in
+
+            legend_y += y_drop;
+
+
+        });
+
+
+        /**
+         ***    LINK Stuff...
+         **/
 
 //we have solves the scaling problems for our links
 //back in the DATA section
-  	link = svg.selectAll(".link")
-      			.data(graph.links)
-    			.enter().append("line")
-			.attr('class','default_link')// all static properties are now set through the class..	
-			.attr('stroke-width', function(d){ //this is where we give thick lines to larger weights
-                             	my_scaled_width = widthScale(d.weight);
-                                if(my_scaled_width < 2){
-                                        return(2);
-                                }else{
-                                        return(my_scaled_width);
-                                }
-                        })
-       			.attr('stroke-dasharray', function(d){ //this is where we support link 'types' 
-					return(dasharrayLookup[d.link_type % dasharrayCount] );
-					})
-       			.attr('stroke', function(d){ //and here...
-					return(edgeColorLookup[d.link_type % dasharrayCount] );
-					});
+        link = svg.selectAll(".link")
+            .data(graph.links)
+            .enter().append("line")
+            .attr('class', 'default_link')// all static properties are now set through the class..
+            .attr('stroke-width', function (d) { //this is where we give thick lines to larger weights
+                my_scaled_width = widthScale(d.weight);
+                if (my_scaled_width < 2) {
+                    return (2);
+                } else {
+                    return (my_scaled_width);
+                }
+            })
+            .attr('stroke-dasharray', function (d) { //this is where we support link 'types'
+                return (dasharrayLookup[d.link_type % dasharrayCount] );
+            })
+            .attr('stroke', function (d) { //and here...
+                return (edgeColorLookup[d.link_type % dasharrayCount] );
+            });
 
-/**
-***	NODE section... 
-**/
+        /**
+         ***    NODE section...
+         **/
 
 //This is the creation of the node.
 //we use a "g" which is a grouping element for svg.
-  	node = svg.selectAll('.node')
-      			.data(graph.nodes)
-      			.enter().append('g')
-      			.attr('class', 'node')
-			.classed('default_node',true)
-      		//	.attr('font-family', 'san-serif')
-      		//	.attr('font-size',  '22px' )
-      			.call(force.drag);
-
+        node = svg.selectAll('.node')
+            .data(graph.nodes)
+            .enter().append('g')
+            .attr('class', 'node')
+            .classed('default_node', true)
+            //	.attr('font-family', 'san-serif')
+            //	.attr('font-size',  '22px' )
+            .call(force.drag);
 
 
 //This is what attaches the symbols to their respective functions...
-  		node.append("path")
-			.filter(function(d){ return(!d.img) })	//basically run this if it is not an image... 
-      			.attr("d", d3.svg.symbol()
-        			.size(function(d) { return d.size; })
-        			.type(function(d) { return d3.svg.symbolTypes[d.type]; }))
-      			.style("fill", function(d) { return color(d.group); })
-      			.style("stroke", "white") //stroke for shapes is not defaulted
-      			.style("stroke-width", "2px") //stroke-width for shapes is not defaulted
-      			;//.call(force.drag);
+        node.append("path")
+            .filter(function (d) {
+                return (!d.img)
+            })	//basically run this if it is not an image...
+            .attr("d", d3.svg.symbol()
+                .size(function (d) {
+                    return d.size;
+                })
+                .type(function (d) {
+                    return d3.svg.symbolTypes[d.type];
+                }))
+            .style("fill", function (d) {
+                return color(d.group);
+            })
+            .style("stroke", "white") //stroke for shapes is not defaulted
+            .style("stroke-width", "2px") //stroke-width for shapes is not defaulted
+        ;//.call(force.drag);
 
-var image_strings = ['.png' , '.jpg', '.svg', '.gif'];
+        var image_strings = ['.png', '.jpg', '.svg', '.gif'];
 
 
-		node.append("svg:image")
-			.filter(function(d){ if(d.img) { return(true) } })	//Its an IMAGE!! 
-        		.attr("xlink:href",  function(d) { 
-						is_full_link = false;
-						//for (var file_type of image_strings) { //soon...
-						for( var i = 0; i < image_strings.length; i++){
-							file_type = image_strings[i];
-							if(d.img.indexOf(file_type) > -1){
-								//console.log(file_type + ' matches against ' + d.img);
-								is_full_link = true;
-							}
-						}
-						if(is_full_link){
-							return d.img; //then it can stand alone..
-						}else{
-							//then we are using our system of building colored icons
-							color_code = color(d.group);
-							img_url = '/images/cache/' + encodeURIComponent( d.img + '.' + color_code + '.png');
-							return img_url;
-						}
-					})
-        		.attr("x", function(d) { return -25;})
-        		.attr("y", function(d) { return -25;})
-        		.attr("height", function(d){ return d.size/10})
-        		.attr("width", function(d){ return d.size/10});
+        node.append("svg:image")
+            .filter(function (d) {
+                if (d.img) {
+                    return (true)
+                }
+            })	//Its an IMAGE!!
+            .attr("xlink:href", function (d) {
+                is_full_link = false;
+                //for (var file_type of image_strings) { //soon...
+                for (var i = 0; i < image_strings.length; i++) {
+                    file_type = image_strings[i];
+                    if (d.img.indexOf(file_type) > -1) {
+                        //console.log(file_type + ' matches against ' + d.img);
+                        is_full_link = true;
+                    }
+                }
+                if (is_full_link) {
+                    return d.img; //then it can stand alone..
+                } else {
+                    //then we are using our system of building colored icons
+                    color_code = color(d.group);
+                    img_url = '/images/cache/' + encodeURIComponent(d.img + '.' + color_code + '.png');
+                    return img_url;
+                }
+            })
+            .attr("x", function (d) {
+                return -25;
+            })
+            .attr("y", function (d) {
+                return -25;
+            })
+            .attr("height", function (d) {
+                return d.size / 10
+            })
+            .attr("width", function (d) {
+                return d.size / 10
+            });
 
 
 // This is what shows the names on the nodes..
-	      	node.append('text')
-			.classed('noselect',true)	//this css is in css/noselect.css and hopefully will prevent the "selection" tool from interfering with the node grabbing process
-			.classed('default_nodetext',true)
-                	.attr('dx', 12)
-                	.attr('dy', '.35em')
-		//	.attr("transform", "rotate(-25)")
-                	.text(function(d) {
-					return d.short_name; 
-                                        //return d.name;
-                         });
+        node.append('text')
+            .classed('noselect', true)	//this css is in css/noselect.css and hopefully will prevent the "selection" tool from interfering with the node grabbing process
+            .classed('default_nodetext', true)
+            .attr('dx', 12)
+            .attr('dy', '.35em')
+            //	.attr("transform", "rotate(-25)")
+            .text(function (d) {
+                return d.short_name;
+                //return d.name;
+            });
 
 // this provides hoverover text that is not needed when we have the text showing all the time..
 // perhaps if we have other info to show...
 //  		node.append("title")
 //      		.text(function(d) { return d.name; });
 
-/**
-***	Node Interactions...
-**/
+        /**
+         ***    Node Interactions...
+         **/
 
 
-		node.on('mousedown', function(d) {
+        node.on('mousedown', function (d) {
 
-			//it is not a requirement to have a actual url..
-			//if you put the blank string... we just do nothing..
-			if(d.json_url.length == 0){
-				console.log('no json_url found, not attempting to build node card');
-				return;
-			}
+            //it is not a requirement to have a actual url..
+            //if you put the blank string... we just do nothing..
+            if (d.json_url.length == 0) {
+                console.log('no json_url found, not attempting to build node card');
+                return;
+            }
 
-			this_url = d.json_url;
+            this_url = d.json_url;
 
-  			$('#node_left_panel').fadeOut("fast");
-			//populate REST-born data for the custom node panel
-			$.getJSON(this_url, function( data) {
-				
-				/*
-					//the old way
+            $('#node_left_panel').fadeOut("fast");
+            //populate REST-born data for the custom node panel
+            $.getJSON(this_url, function (data) {
+
+                /*
+                    //the old way
                                         dust.render(this_dust, data, function(err, out){
-  							$('#node_left_panel').html(out);
-  							$('#node_left_panel').fadeIn("slow");
+                              $('#node_left_panel').html(out);
+                              $('#node_left_panel').fadeIn("slow");
                                                  });
-				*/
+                */
 
-					//the new way just uses literal templates https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-					card_html = `
+                //the new way just uses literal templates https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+                card_html = `
 <div class='card' style='width: 97%'>
   <img class='card-img-top' src="${data.card_img_top}">
   <div class="card-body">
@@ -739,177 +890,188 @@ var image_strings = ['.png' , '.jpg', '.svg', '.gif'];
   </div>
 `;
 
-  					$('#node_left_panel').html(card_html);
-  					$('#node_left_panel').fadeIn("slow");
-				
-				
-			// TODO reimplement?
-			/*					
-					//this js exists because is_admin = true...
+                $('#node_left_panel').html(card_html);
+                $('#node_left_panel').fadeIn("slow");
 
-					this_admin_dust = 'admin.' + this_dust;
-                                        dust.render(this_admin_dust, data, function(err, out){
-  							$('#node_admin_left_panel').html(out);
-  							$('#node_admin_left_panel').fadeIn("slow");
-                                                 });
-											
-			*/				
-								
-					
-                                         }); 
-			//populate the generic node panel from the existing node data
-			//first we need printable versions of the type and group
 
-			//TODO reimplement using literals!!
-		/*
-			d.type_print = graph.types[d.type].label;
-			d.group_print = graph.groups[d.group].name;
-			dust.render('all_node_dust',d,function(err,out){
-  					$('#node_menu_left_panel').html(out);
-				});
-	
-		*/
-		});
+                // TODO reimplement?
+                /*
+                        //this js exists because is_admin = true...
 
-		node.on('dblclick', function(d) {
-                	d.fixed = false;
-			static_positions[d.index].saved = false;
-                	force_settle();  
-                });
+                        this_admin_dust = 'admin.' + this_dust;
+                                            dust.render(this_admin_dust, data, function(err, out){
+                                  $('#node_admin_left_panel').html(out);
+                                  $('#node_admin_left_panel').fadeIn("slow");
+                                                     });
+
+                */
+
+
+            });
+            //populate the generic node panel from the existing node data
+            //first we need printable versions of the type and group
+
+            //TODO reimplement using literals!!
+            /*
+                d.type_print = graph.types[d.type].label;
+                d.group_print = graph.groups[d.group].name;
+                dust.render('all_node_dust',d,function(err,out){
+                          $('#node_menu_left_panel').html(out);
+                    });
+
+            */
+        });
+
+        node.on('dblclick', function (d) {
+            d.fixed = false;
+            static_positions[d.index].saved = false;
+            force_settle();
+        });
 
 //The functionality we want here is to highlight the edges for a specific node...
 //but we want to avoid the fireworks... to do that... we set a timer...
 //if you are still hovering after three seconds... we light it up...
-var still_hovering = false;
-		node.on('mouseover', function(d){ //on mouseout we calculate if we are in our boxes 
+        var still_hovering = false;
+        node.on('mouseover', function (d) { //on mouseout we calculate if we are in our boxes
 
 
-			if(is_currently_search) return;
+            if (is_currently_search) return;
 
-			//console.log('mouse over now');
-			still_hovering = d.id;
-			force.stop();
-			//restoreOpacity();
-			if(hoveringTimeout) clearTimeout(hoveringTimeout);
-
-
-			hoveringTimeout = setTimeout(function() {
-
-			   if(still_hovering == d.id){ //still hovering after 2 seconds... light it up!!
-				//console.log('mouse over timeout running');
- 
- 				link.attr('class',(function(l) { 
-					if (d === l.source || d === l.target) 
-						return('emphasis_link_red'); 
-					else
-						return('light_link');
-					}));
-
-		//first we make the node style sensible
-            	node.attr('class', function(o) {
-                		if(isConnected(d, o)){
-					return ('noselect emphasis_node');
-				}else{
-					return('noselect light_node');
-				}
-
-			});
-
-		//then we make the text style compatible;
-                d3.selectAll('text.noselect')
-                        	.attr('class',
-                                	function(){
-						//lets get everything from the parent...
-						this_parent_g = d3.select(this.parentNode);
-						new_class = this_parent_g.attr('class') + 'text';
-                        
-						return new_class;
-                                        
-                                	}
-                        	);
+            //console.log('mouse over now');
+            still_hovering = d.id;
+            force.stop();
+            //restoreOpacity();
+            if (hoveringTimeout) clearTimeout(hoveringTimeout);
 
 
-                       	    }else{
-					//then we are not still hovering??
+            hoveringTimeout = setTimeout(function () {
 
-		     	    }
+                if (still_hovering == d.id) { //still hovering after 2 seconds... light it up!!
+                    //console.log('mouse over timeout running');
 
-			},2000);
-		});
+                    link.attr('class', (function (l) {
+                        if (d === l.source || d === l.target)
+                            return ('emphasis_link_red');
+                        else
+                            return ('light_link');
+                    }));
 
-		node.on('mouseout', function(d){
-			//console.log('mouseout');
-			
-			still_hovering = false;//will prevent a light up if it has not already happened
-			if(hoveringTimeout) clearTimeout(hoveringTimeout);
-			
-			if(!is_currently_search)
-				restoreOpacity();
+                    //first we make the node style sensible
+                    node.attr('class', function (o) {
+                        if (isConnected(d, o)) {
+                            return ('noselect emphasis_node');
+                        } else {
+                            return ('noselect light_node');
+                        }
 
-		})
-		
-		;
-/**
-***	FORCE FUNCTIONS
-***/
+                    });
+
+                    //then we make the text style compatible;
+                    d3.selectAll('text.noselect')
+                        .attr('class',
+                            function () {
+                                //lets get everything from the parent...
+                                this_parent_g = d3.select(this.parentNode);
+                                new_class = this_parent_g.attr('class') + 'text';
+
+                                return new_class;
+
+                            }
+                        );
+
+
+                } else {
+                    //then we are not still hovering??
+
+                }
+
+            }, 2000);
+        });
+
+        node.on('mouseout', function (d) {
+            //console.log('mouseout');
+
+            still_hovering = false;//will prevent a light up if it has not already happened
+            if (hoveringTimeout) clearTimeout(hoveringTimeout);
+
+            if (!is_currently_search)
+                restoreOpacity();
+
+        })
+
+        ;
+        /**
+         ***    FORCE FUNCTIONS
+         ***/
 //this window resize function does not work as an external function
 //perhaps because of variable scoping...
 
-var starting_tick_ignore, tick_ignore_countdown = 200;
+        var starting_tick_ignore, tick_ignore_countdown = 200;
 
 
 // The tick function is your way to influence what happens to the nodes and links on every tick of the force loop...
-  	force.on("tick", function(e) {
+        force.on("tick", function (e) {
 
 //		if(need_to_load_static_positions){
 //			console.log('need to load the save positions');
-                 	graph.nodes.forEach(function (o,i){
-                       	 	if(o.fixed){
-					if(static_positions[i].saved){
-						//console.log("node "+i);
-						//console.log("using saved x: " + static_positions[i].x);
-						
-               		                 	o.x = static_positions[i].x;
-               	          	       		o.y = static_positions[i].y;
-					}
-				}
-			});
+            graph.nodes.forEach(function (o, i) {
+                if (o.fixed) {
+                    if (static_positions[i].saved) {
+                        //console.log("node "+i);
+                        //console.log("using saved x: " + static_positions[i].x);
+
+                        o.x = static_positions[i].x;
+                        o.y = static_positions[i].y;
+                    }
+                }
+            });
 //			console.log(static_positions);
 //			need_to_load_static_positions = false;
 //		}
-			skip_this_tick = false;
-			if(tick_ignore_countdown > 0){
-				skip_this_tick = true;
-			}
+            skip_this_tick = false;
+            if (tick_ignore_countdown > 0) {
+                skip_this_tick = true;
+            }
 
 
-			node.each(defineGravity(e.alpha));
+            node.each(defineGravity(e.alpha));
 
-			if(!skip_this_tick){
-			
-    				link.attr("x1", function(d) { return d.source.x; })
-        				.attr("y1", function(d) { return d.source.y; })
-        				.attr("x2", function(d) { return d.target.x; })
-        				.attr("y2", function(d) { return d.target.y; });
+            if (!skip_this_tick) {
 
-      				node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+                link.attr("x1", function (d) {
+                    return d.source.x;
+                })
+                    .attr("y1", function (d) {
+                        return d.source.y;
+                    })
+                    .attr("x2", function (d) {
+                        return d.target.x;
+                    })
+                    .attr("y2", function (d) {
+                        return d.target.y;
+                    });
 
-			
-				force_settle(20000,'running tick'); //no matter what stop the graph from moving after an initial settle period
-			}
-			tick_ignore_countdown--;
-	});
+                node.attr("transform", function (d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                });
 
-	$('#loading_div').toggle();
-	$('#viz').toggle();
 
-},'json').fail( function() {
-	//this means the json did not load...
-	$('#inner_loading').toggle();
-	$('#inner_error').toggle();
-	$('#viz').toggle();
-	
-}); //this closes out the entire json getting function...
+                force_settle(20000, 'running tick'); //no matter what stop the graph from moving after an initial settle period
+            }
+            tick_ignore_countdown--;
+        });
+
+        $('#loading_div').toggle();
+        $('#viz').toggle();
+
+    }, 'json').fail(function () {
+        //this means the json did not load...
+        $('#inner_loading').toggle();
+        $('#inner_error').toggle();
+        $('#viz').toggle();
+
+    }); //this closes out the entire json getting function...
+
 
 
 </script>
