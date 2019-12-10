@@ -57,33 +57,14 @@
 		  <div class="container-fluid">
 	  <div class="row">
       <div class="col-md-2">
-        <div class="card">
-          <div class="card-body">
+        <div class="card" style="width: 98%;" >
+          <div class="card-body" style="width: 98%; padding: .25rem;">
 {{ $report->getReportName() }}
             <hr>
 
-
-
-<div class="accordion" id="accordionExample">
-  <div class="card">
-    <div class="card-header" id="headingOne">
-      <h2 class="mb-0">
-        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-          Data Options
-        </button>
-      </h2>
-    </div>
-
-    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-      <div class="card-body">
-<p>
-<button class="view-data-options">Data Options</button>
+<button type="button" class="btn btn-primary btn-block view-data-options"> Data Options </button>
 <br>
-    <input type="checkbox" name="hideLonelyNode" id="hideLonelyNode"  onchange="updateForce();" value="1"> Hide Lonely Node <br/><br/>
-</p>
-      </div>
-    </div>
-  </div>
+<div class="accordion" id="menuAccordion">
   <div class="card">
     <div class="card-header" id="headingTwo">
       <h2 class="mb-0">
@@ -92,7 +73,7 @@
         </button>
       </h2>
     </div>
-    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#menuAccordion">
       <div class="card-body">
 
     Gravity<br>
@@ -105,6 +86,7 @@
               <input id="zoomSlider" type="range" onchange="updateForce();" min="0.5" max="5" step="0.05" value="1.7">
               <input type="hidden" name='zoomInput'  id="zoomInput" value="1.7">
               <br/>
+    <input type="checkbox" name="hideLonelyNode" id="hideLonelyNode"  onchange="updateForce();" value="1"> Hide Lonely Node <br/><br/>
 
 
 
@@ -152,7 +134,7 @@
         </button>
       </h2>
     </div>
-    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#menuAccordion">
       <div class="card-body">
 
 <!-- Animation Options Form -->
@@ -891,11 +873,10 @@ $("#debug_link").on('click', function(){
 
                 //the new way just uses literal templates https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
                 card_html = `
-<div class='card' style='width: 97%'>
+<div class='card' style='width: 97%; padding .25rem;'>
 	${card_img}
-  <div class="card-body">
 	${data.card_body}
-  </div>
+</div>
 `;
 
                 $('#node_left_panel').html(card_html);
