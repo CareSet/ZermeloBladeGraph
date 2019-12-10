@@ -881,10 +881,18 @@ $("#debug_link").on('click', function(){
                                                  });
                 */
 
+
+		if(isset(data.card_img_top)){
+			card_img = `<img class='card-img-top' src="${data.card_img_top}">`;
+		}else{
+			card_img = '';
+		}
+
+
                 //the new way just uses literal templates https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
                 card_html = `
 <div class='card' style='width: 97%'>
-  <img class='card-img-top' src="${data.card_img_top}">
+	${card_img}
   <div class="card-body">
 	${data.card_body}
   </div>
@@ -1714,6 +1722,39 @@ Copyright © CareSet 2019
                         });//end of getJSON  
                 }); //end of on(show.bs.modal)
  	});//end of jquery ready
+
+
+function isset () {
+  //  discuss at: http://locutus.io/php/isset/
+  // original by: Kevin van Zonneveld (http://kvz.io)
+  // improved by: FremyCompany
+  // improved by: Onno Marsman (https://twitter.com/onnomarsman)
+  // improved by: Rafał Kukawski (http://blog.kukawski.pl)
+  //   example 1: isset( undefined, true)
+  //   returns 1: false
+  //   example 2: isset( 'Kevin van Zonneveld' )
+  //   returns 2: true
+
+  var a = arguments
+  var l = a.length
+  var i = 0
+  var undef
+
+
+  if (l === 0) {
+    throw new Error('Empty isset')
+  }
+
+  while (i !== l) {
+    if (a[i] === undef || a[i] === null || a[i] === '') {
+      return false
+    }
+    i++
+  }
+
+  return true
+}
+
 </script>
 
 
