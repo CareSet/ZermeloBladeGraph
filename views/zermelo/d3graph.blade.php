@@ -57,33 +57,14 @@
 		  <div class="container-fluid">
 	  <div class="row">
       <div class="col-md-2">
-        <div class="card">
-          <div class="card-body">
+        <div class="card" style="width: 98%;" >
+          <div class="card-body" style="width: 98%; padding: .25rem;">
 {{ $report->getReportName() }}
             <hr>
 
-
-
-<div class="accordion" id="accordionExample">
-  <div class="card">
-    <div class="card-header" id="headingOne">
-      <h2 class="mb-0">
-        <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
-          Data Options
-        </button>
-      </h2>
-    </div>
-
-    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
-      <div class="card-body">
-<p>
-<button class="view-data-options">Data Options</button>
+<button type="button" class="btn btn-primary btn-block view-data-options"> Data Options </button>
 <br>
-    <input type="checkbox" name="hideLonelyNode" id="hideLonelyNode"  onchange="updateForce();" value="1"> Hide Lonely Node <br/><br/>
-</p>
-      </div>
-    </div>
-  </div>
+<div class="accordion" id="menuAccordion">
   <div class="card">
     <div class="card-header" id="headingTwo">
       <h2 class="mb-0">
@@ -92,7 +73,7 @@
         </button>
       </h2>
     </div>
-    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#menuAccordion">
       <div class="card-body">
 
     Gravity<br>
@@ -105,6 +86,7 @@
               <input id="zoomSlider" type="range" onchange="updateForce();" min="0.5" max="5" step="0.05" value="1.7">
               <input type="hidden" name='zoomInput'  id="zoomInput" value="1.7">
               <br/>
+    <input type="checkbox" name="hideLonelyNode" id="hideLonelyNode"  onchange="updateForce();" value="1"> Hide Lonely Node <br/><br/>
 
 
 
@@ -152,7 +134,7 @@
         </button>
       </h2>
     </div>
-    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordionExample">
+    <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#menuAccordion">
       <div class="card-body">
 
 <!-- Animation Options Form -->
@@ -375,7 +357,7 @@ $("#debug_link").on('click', function(){
 });
 
 
-    var svgCSS = "\n\n.emphasis_node {\n        font-size: 27px;\n        stroke:  black;\n        stroke-width:  2px;\n        stroke-opacity:  1;\n        fill:  black;\n        fill-opacity:  1;\n\n	}\n\n.emphasis_nodetext {\n	transform: rotate(-35deg);\n        font-size: 27px;\n        stroke:  black;\n        stroke-width:  2px;\n        stroke-opacity:  1;\n        fill:  black;\n        fill-opacity:  1;\n\n}\n\n.emphasis_link {\n        stroke-opacity:  .9;\n}\n\n.emphasis_link_red {\n        stroke:  red;\n        stroke-opacity:  .9;\n}\n\n.light_node {\n        font-size:  17px;\n        stroke: grey;\n        stroke-width: 2px;\n        stroke-opacity: 0.2;\n        fill: grey;\n        fill-opacity: 0.2;\n}\n\n.light_nodetext {\n	transform: rotate(-35deg);\n        font-size:  17px;\n        stroke: grey;\n        stroke-width: 2px;\n        stroke-opacity: 0.2;\n        fill: grey;\n        fill-opacity: 0.2;\n}\n\n.light_link {\n        stroke-opacity: .2;\n}\n\n.default_node {\n        font-size: 22px;\n        stroke: dimgrey;\n        stroke-width: 2px;\n        stroke-opacity: 0.8;\n        fill: black;\n        fill-opacity: 0.8;\n}\n\n.default_nodetext {\n	transform: rotate(-35deg);\n        font-size: 22px;\n        stroke: dimgrey;\n        stroke-width: 2px;\n        stroke-opacity: 0.8;\n        fill: black;\n        fill-opacity: 0.8;\n}\n\n.default_link {\n        stroke-opacity: .5;\n        stroke-linecap: round;\n\n}\n";
+    var svgCSS = "\n\n.emphasis_node {\n        font-size: 27px;\n        stroke:  black;\n        stroke-width:  2px;\n        stroke-opacity:  1;\n        fill:  black;\n        fill-opacity:  1;\n\n	}\n\n.emphasis_nodetext {\n	transform: rotate(-5deg);\n        font-size: 27px;\n        stroke:  black;\n        stroke-width:  2px;\n        stroke-opacity:  1;\n        fill:  black;\n        fill-opacity:  1;\n\n}\n\n.emphasis_link {\n        stroke-opacity:  .9;\n}\n\n.emphasis_link_red {\n        stroke:  red;\n        stroke-opacity:  .9;\n}\n\n.light_node {\n        font-size:  17px;\n        stroke: grey;\n        stroke-width: 2px;\n        stroke-opacity: 0.2;\n        fill: grey;\n        fill-opacity: 0.2;\n}\n\n.light_nodetext {\n	transform: rotate(-35deg);\n        font-size:  17px;\n        stroke: grey;\n        stroke-width: 2px;\n        stroke-opacity: 0.2;\n        fill: grey;\n        fill-opacity: 0.2;\n}\n\n.light_link {\n        stroke-opacity: .2;\n}\n\n.default_node {\n        font-size: 22px;\n        stroke: dimgrey;\n        stroke-width: 2px;\n        stroke-opacity: 0.8;\n        fill: black;\n        fill-opacity: 0.8;\n}\n\n.default_nodetext {\n	transform: rotate(-5deg);\n        font-size: 22px;\n        stroke: dimgrey;\n        stroke-width: 2px;\n        stroke-opacity: 0.8;\n        fill: black;\n        fill-opacity: 0.8;\n}\n\n.default_link {\n        stroke-opacity: .5;\n        stroke-linecap: round;\n\n}\n";
 
     var hoveringTimeout = null;
     var is_currently_search = false;
@@ -839,7 +821,7 @@ $("#debug_link").on('click', function(){
 // This is what shows the names on the nodes..
         node.append('text')
             .classed('noselect', true)	//this css is in css/noselect.css and hopefully will prevent the "selection" tool from interfering with the node grabbing process
-            .classed('default_nodetext', true)
+            .classed('default_nodetext', true) //this class is what handles the text rotations
             .attr('dx', 12)
             .attr('dy', '.35em')
             //	.attr("transform", "rotate(-25)")
@@ -881,13 +863,20 @@ $("#debug_link").on('click', function(){
                                                  });
                 */
 
+
+		if(isset(data.card_img_top)){
+			card_img = `<img class='card-img-top' src="${data.card_img_top}">`;
+		}else{
+			card_img = '';
+		}
+
+
                 //the new way just uses literal templates https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
                 card_html = `
-<div class='card' style='width: 97%'>
-  <img class='card-img-top' src="${data.card_img_top}">
-  <div class="card-body">
+<div class='card' style='width: 97%; padding .25rem;'>
+	${card_img}
 	${data.card_body}
-  </div>
+</div>
 `;
 
                 $('#node_left_panel').html(card_html);
@@ -1714,6 +1703,39 @@ Copyright © CareSet 2019
                         });//end of getJSON  
                 }); //end of on(show.bs.modal)
  	});//end of jquery ready
+
+
+function isset () {
+  //  discuss at: http://locutus.io/php/isset/
+  // original by: Kevin van Zonneveld (http://kvz.io)
+  // improved by: FremyCompany
+  // improved by: Onno Marsman (https://twitter.com/onnomarsman)
+  // improved by: Rafał Kukawski (http://blog.kukawski.pl)
+  //   example 1: isset( undefined, true)
+  //   returns 1: false
+  //   example 2: isset( 'Kevin van Zonneveld' )
+  //   returns 2: true
+
+  var a = arguments
+  var l = a.length
+  var i = 0
+  var undef
+
+
+  if (l === 0) {
+    throw new Error('Empty isset')
+  }
+
+  while (i !== l) {
+    if (a[i] === undef || a[i] === null || a[i] === '') {
+      return false
+    }
+    i++
+  }
+
+  return true
+}
+
 </script>
 
 
