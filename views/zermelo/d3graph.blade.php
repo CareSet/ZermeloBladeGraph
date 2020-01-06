@@ -76,13 +76,13 @@
     <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#menuAccordion">
       <div class="card-body">
 
-    Gravity<br>
-              <input id="gravitySlider" type="range" onchange="updateForce();" min="0" max="0.17" step="0.001" value="0.04">
+    Gravity:<br>
+              <input id="gravitySlider" type="range" onchange="updateForce();" min="0.01" max="0.37" step="0.001" value="0.04">
               <input type="hidden" name='gravityInput'  id="gravityInput" value="0.04"><br>
-    Charge<br>
-              <input id="chargeSlider" type="range" onchange="updateForce();" min="-15000" max="0" step="10" value="-3000">
-              <input type="hidden" name='chargeInput'  id="chargeInput" value="-3000">
-    Zoom<br>
+    Charge:<br>
+              <input id="chargeSlider" type="range" onchange="updateForce();" min="-25000" max="0" step="10" value="-3000">
+              <input type="hidden" name='chargeInput'  id="chargeInput" value="-3000"><br>
+    Zoom:<br>
               <input id="zoomSlider" type="range" onchange="updateForce();" min="0.5" max="5" step="0.05" value="1.7">
               <input type="hidden" name='zoomInput'  id="zoomInput" value="1.7">
               <br/>
@@ -99,28 +99,30 @@
     <div style='display: none'>
                 linkDistance<br>
               <input id="linkDistanceSlider" type="range" onchange="updateForce();" min="1" max="200" step="1" value="30">
-              <input type="hidden" name='linkDistanceInput' id="linkDistanceInput" value="30">
+              <input type="hidden" name='linkDistanceInput' id="linkDistanceInput" value="30"><br>
     </div>
 
                 linkStrength<br>
               <input id="linkStrengthSlider" type="range" onchange="updateForce();" min="0.001" max="1" step=".01" value="0.55">
-              <input type="hidden" name='linkStrengthInput' id="linkStrengthInput" value="0.55">
+              <input type="hidden" name='linkStrengthInput' id="linkStrengthInput" value="0.55"><br>
     Friction<br>
               <input id="frictionSlider" type="range" onchange="updateForce();" min="0.01" max="1" step=".05" value="0.7">
-              <input type="hidden" name='frictionInput' id="frictionInput" value="0.7">
+              <input type="hidden" name='frictionInput' id="frictionInput" value="0.7"><br>
     Charge Distance<br>
               <input id="chargeDistanceSlider" type="range" onchange="updateForce();" min="1" max="1000" step="1" value="300">
-              <input type="hidden" name='chargeDistanceInput'  id="chargeDistanceInput" value="300">
+              <input type="hidden" name='chargeDistanceInput'  id="chargeDistanceInput" value="300"><br>
     Theta<br>
               <input id="thetaSlider" type="range" onchange="updateForce();" min="0.01" max="1" step=".05" value="0.35">
-              <input type="hidden" name='thetaInput'  id="thetaInput" value="0.35">
+              <input type="hidden" name='thetaInput'  id="thetaInput" value="0.35"><br>
     Alpha<br>
               <input id="alphaSlider" type="range" onchange="updateForce();" min="0.01" max="2" step=".1" value="0.5">
-              <input type="hidden"  name='alphaInput' id="alphaInput" value="0.5">
+              <input type="hidden"  name='alphaInput' id="alphaInput" value="0.5"><br>
     </div>
         <div class="checkbox">
     <label>
+<!--
       <input id='reset_parameters' name='reset_parameters' value='off' type="checkbox"> Reset Parameters
+-->
     </label>
   </div>
       </div>
@@ -139,46 +141,46 @@
 
 <!-- Animation Options Form -->
 <div class="btn-group-vertical btn-group-toogle" data-toggle="buttons">
-  <label class="btn btn-primary"
+  <label class="btn btn-primary" for='option_animate' style='margin-bottom: 0px'
   onClick="true_unfreeze();" >
-    <input type="radio" name="options" id="option1" autocomplete="off" checked> 
-                <span class="glyphicon glyphicon-play"></span> Animate Graph
+    	<input type="radio" name="options" id="option_animate" autocomplete="off" style='display: none;'> 
+		<i class="fas fa-play"></i> Animate Graph
   </label>
-  <label class="btn btn-primary"
+  <label class="btn btn-primary" for='option_freeze' style='margin-bottom: 0px'
   onClick="force.stop();" >
-    <input type="radio" name="options" id="option1" autocomplete="off" checked> 
-                <span class="glyphicon glyphicon-pause"></span> Freeze Graph
+    <input type="radio" name="options" id="option_freeze" autocomplete="off" style='display: none;'> 
+                <i class="fas fa-pause"></i> Freeze Graph
   </label>
 
-  <label class="btn btn-primary"
+  <label class="btn btn-primary" for='option_unfix' style='margin-bottom: 0px'
   onClick="free_nodes();" >
-    <input type="radio" name="options" id="option1" autocomplete="off" checked> 
-                <span class="glyphicon glyphicon-random"></span> Unfix All Nodes
+    <input type="radio" name="options" id="option_unfix" autocomplete="off" style='display: none;'> 
+                <i class="fas fa-lock-open"></i> Unfix All Nodes
   </label>
 
-  <label class="btn btn-primary"
+  <label class="btn btn-primary" for='option_center' style='margin-bottom: 0px'
   onClick="console.log('trying center'); gravityMode = 'centered'; force_settle('3000','gravity center');"
 >
-    <input type="radio" name="options" id="option1" autocomplete="off" checked> 
-    <span class="glyphicon glyphicon-play"></span> Center Gravity
+    <input type="radio" name="options" id="option_center" autocomplete="off"  style='display: none;'> 
+    		<i class="fas fa-align-center"></i> Center Gravity
   </label>
-  <label class="btn btn-primary"
+  <label class="btn btn-primary" for='option_right' style='margin-bottom: 0px'
   onClick="console.log('trying right'); gravityMode = 'right'; force_settle('3000','gravity right');"
 >
-    <input type="radio" name="options" id="option2" autocomplete="off"> 
-    <span class="glyphicon glyphicon-arrow-right"></span>Right Gravity
+    <input type="radio" name="options" id="option_right" autocomplete="off" style='display: none;'> 
+    		<i class="fas fa-align-right"></i> Right Gravity
   </label>
-  <label class="btn btn-primary"
+  <label class="btn btn-primary" for='option_left' style='margin-bottom: 0px'
   onClick="console.log('trying left'); gravityMode = 'left'; force_settle('3000','gravity left');"
 >
-    <input type="radio" name="options" id="option3" autocomplete="off"> 
-    <span class="glyphicon glyphicon-arrow-left"></span>Left Gravity
+    <input type="radio" name="options" id="option_left" autocomplete="off" style='display: none;'> 
+    		<i class="fas fa-align-left"></i> Left Gravity
   </label>
-  <label class="btn btn-primary"
+  <label class="btn btn-primary" for='option_group' style='margin-bottom: 0px'
   onClick="console.log('trying group'); gravityMode = 'group'; force_settle('3000','gravity group');"
 >
-    <input type="radio" name="options" id="option3" autocomplete="off"> 
-      <span class="glyphicon glyphicon-transfer"></span>Group Gravity
+    <input type="radio" name="options" id="option_group" autocomplete="off" style='display: none;'> 
+      		<i class="fas fa-expand-arrows-alt"></i> Group Gravity
   </label>
 <!-- Animation Options Form -->
 
