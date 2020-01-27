@@ -18,7 +18,7 @@ to the "repositories" section of your composer.json file so composer can find th
     `composer require careset/zermelobladegraph`
     
 3. Then run:   
-    `php artisan install:zermelobladegraph`
+    `php artisan zermelo:install_zermelobladegraph`
 This will create a zermelo directory in your resources directory containing blade view templates. 
 This will also publish the configuration file to your app's config directory, move assets (js, css) to public/vendor. 
  
