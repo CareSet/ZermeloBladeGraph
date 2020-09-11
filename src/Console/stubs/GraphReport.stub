@@ -177,8 +177,6 @@ WHERE TABLE_SCHEMA != 'information_schema' AND TABLE_SCHEMA != 'mysql'
      */
     public $REPORT_VIEW = null;
 
-	public $DETAIL     = [];
-
     //Should this report use the report caching functions (usefuly for very slow reports)
    public function isCacheEnabled(){ return(false); }
 
