@@ -185,6 +185,15 @@ WHERE TABLE_SCHEMA != 'information_schema' AND TABLE_SCHEMA != 'mysql'
         return(1200); //twenty minutes by default
    }
 
+	//these are included in order for the tabular view to work...
+
+	public $DETAIL = [];
+	public $URL = [];
+	public $CURRENCY = [];
+        public $NUMBER = [];
+        public $DECIMAL = [];
+        public $PERCENT = [];
+        public $SUGGEST_NO_SUMMARY = [];	
 
 
 }
