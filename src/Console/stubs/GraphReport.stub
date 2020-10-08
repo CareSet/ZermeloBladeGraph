@@ -185,6 +185,14 @@ WHERE TABLE_SCHEMA != 'information_schema' AND TABLE_SCHEMA != 'mysql'
         return(1200); //twenty minutes by default
    }
 
+    /**
+    * This function will determine if replacing /Zermelo/ with /ZeremeloSQL/ will show the SQL of the report
+    * for security reasons it should be off by default.
+    */
+   public function isSQLPrintEnabled(): bool{
+         return(false); //protect the sql by default
+   }
+
 	//these are included in order for the tabular view to work...
 
 	public $DETAIL = [];
