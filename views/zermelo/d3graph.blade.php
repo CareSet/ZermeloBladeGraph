@@ -62,7 +62,10 @@
 {{ $report->getReportName() }}
             <hr>
 
-<button type="button" class="btn btn-primary btn-block view-data-options"> Data Options </button>
+@if ($report->hasActiveWrenches())
+  <button type="button" class="btn btn-primary btn-block view-data-options"> Data Options </button>
+@endif
+              
 <br>
 <div class="accordion" id="menuAccordion">
   <div class="card">
@@ -143,43 +146,43 @@
 <div class="btn-group-vertical btn-group-toogle" data-toggle="buttons">
   <label class="btn btn-primary" for='option_animate' style='margin-bottom: 0px'
   onClick="true_unfreeze();" >
-    	<input type="radio" name="options" id="option_animate" autocomplete="off" style='display: none;'> 
+    	<input type="radio" name="options" id="option_animate" autocomplete="off" style='display: none;'>
 		<i class="fas fa-play"></i> Animate Graph
   </label>
   <label class="btn btn-primary" for='option_freeze' style='margin-bottom: 0px'
   onClick="force.stop();" >
-    <input type="radio" name="options" id="option_freeze" autocomplete="off" style='display: none;'> 
+    <input type="radio" name="options" id="option_freeze" autocomplete="off" style='display: none;'>
                 <i class="fas fa-pause"></i> Freeze Graph
   </label>
 
   <label class="btn btn-primary" for='option_unfix' style='margin-bottom: 0px'
   onClick="free_nodes();" >
-    <input type="radio" name="options" id="option_unfix" autocomplete="off" style='display: none;'> 
+    <input type="radio" name="options" id="option_unfix" autocomplete="off" style='display: none;'>
                 <i class="fas fa-lock-open"></i> Unfix All Nodes
   </label>
 
   <label class="btn btn-primary" for='option_center' style='margin-bottom: 0px'
   onClick="console.log('trying center'); gravityMode = 'centered'; force_settle('3000','gravity center');"
 >
-    <input type="radio" name="options" id="option_center" autocomplete="off"  style='display: none;'> 
+    <input type="radio" name="options" id="option_center" autocomplete="off"  style='display: none;'>
     		<i class="fas fa-align-center"></i> Center Gravity
   </label>
   <label class="btn btn-primary" for='option_right' style='margin-bottom: 0px'
   onClick="console.log('trying right'); gravityMode = 'right'; force_settle('3000','gravity right');"
 >
-    <input type="radio" name="options" id="option_right" autocomplete="off" style='display: none;'> 
+    <input type="radio" name="options" id="option_right" autocomplete="off" style='display: none;'>
     		<i class="fas fa-align-right"></i> Right Gravity
   </label>
   <label class="btn btn-primary" for='option_left' style='margin-bottom: 0px'
   onClick="console.log('trying left'); gravityMode = 'left'; force_settle('3000','gravity left');"
 >
-    <input type="radio" name="options" id="option_left" autocomplete="off" style='display: none;'> 
+    <input type="radio" name="options" id="option_left" autocomplete="off" style='display: none;'>
     		<i class="fas fa-align-left"></i> Left Gravity
   </label>
   <label class="btn btn-primary" for='option_group' style='margin-bottom: 0px'
   onClick="console.log('trying group'); gravityMode = 'group'; force_settle('3000','gravity group');"
 >
-    <input type="radio" name="options" id="option_group" autocomplete="off" style='display: none;'> 
+    <input type="radio" name="options" id="option_group" autocomplete="off" style='display: none;'>
       		<i class="fas fa-expand-arrows-alt"></i> Group Gravity
   </label>
 <!-- Animation Options Form -->
@@ -192,7 +195,7 @@
 <hr>
 <a class='btn btn-primary btn-block' id='down_svg_link' onclick='downloadSVG();'>Download Image</a>
 <!-- TODO consider reimplementing ? -->
-<!-- 
+<!--
 <hr>
         	<h5> Admin Only Menu </h5>
                 <span><small>
@@ -214,33 +217,33 @@
 <div id='node_menu_left_panel'>
 <!-- this gets replaced by a different literal  panel -->
 </div>
-        
+
   </div> <!-- end left panel -->
 </div>
 
 </div>
 <!-- resuming the bootstrap parts -->
 
-</div> <!-- end left side main card div --> 
+</div> <!-- end left side main card div -->
 
 <div class='col-md-10'>
 <div class='row'>
 	<div class='col-md-6'>
         			<ol class="breadcrumb">
-					
+
 						  						<li class='breadcrumb-item'>{{ $report->getReportName() }}</li>
 						  						<li class="breadcrumb-item active">{{ $report->getReportDescription() }}</li>
-          			</ol>   
-<!-- 
+          			</ol>
+<!--
   <div class="form-group float-righ">
 					    	<input class="form-control" id="nodeTextMatch" name="nodeTextMatch" type="text" />
 			</div></form>
-		
+
     <label for="inputEmail3" class="col-sm-2 col-form-label">Button</label>
 -->
 	</div>
 	<div class='col-md-6'>
-<!-- the graph search form --> 
+<!-- the graph search form -->
 <form onsubmit="event.preventDefault(); return false;">
   <div class="float-left form-group row">
     <div class="col-sm-6">
@@ -251,7 +254,7 @@
     						<button class='btn btn-primary btn-xs' onclick="restoreSearch();">restore graph</button>
   </div>
 </form>
-</div> <!-- ending the row --> 
+</div> <!-- ending the row -->
 
 <div id='right_pane' class='col-md-12'>
 	<div id='loading_div' class="row">
@@ -273,7 +276,7 @@
       <i class='fa fa-bug fa-3x'></i>
       Data loading error
     </h1>
-<h3> 	There was a problem loading your data, please report this bug to 
+<h3> 	There was a problem loading your data, please report this bug to
 	<a href='mailto:support@careset.com?subject=Data+load+error&body=Trouble%20loading%20data%20at%20cube.careset.com%20%2FFORCE%2Fdandelion_simple%2F1114904687'
 	>
 	support@careset.com</a></h3>
@@ -283,7 +286,7 @@
 </div>
 		<!-- this is where the svg is going to live in the end -->
 
-		<div style='height: 1000px; display: none;' id='viz'> 
+		<div style='height: 1000px; display: none;' id='viz'>
 		</div>
 		<script>
 
@@ -1069,7 +1072,7 @@ $("#debug_link").on('click', function(){
 
 <script>
 
-// These functions are loaded from FORCE_functions.tpl 
+// These functions are loaded from FORCE_functions.tpl
 
 // we use the svg stroke-dasharray to show our edge types
 // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/stroke-dasharray
@@ -1103,7 +1106,7 @@ function ContainsFromGo(s, substr) {
   //   returns 1: true
   // modified to be caseless..
 	haystack = s.toLowerCase();
-	needle = substr.toLowerCase();	
+	needle = substr.toLowerCase();
   return (haystack + '').indexOf(needle) !== -1
 }
 function restoreSearch()
@@ -1140,7 +1143,7 @@ function searchNodeText(){
 
 		node.attr('class',function(d)
 		{
-			this_text = d3.select(this.childNodes[2]).text();			
+			this_text = d3.select(this.childNodes[2]).text();
 			this_search_result = ContainsFromGo(this_text,searchstring);
 
 			if(this_search_result){
@@ -1149,14 +1152,14 @@ function searchNodeText(){
 				return 'noselect light_node';
 			}
 
-			
+
 			my_text = d3.select(this).select('text');
 			my_text.text(d.name);
 
 		});
 
 
-		link.attr('class', function(l) {  
+		link.attr('class', function(l) {
 			if(ContainsFromGo(l.source.name,searchstring) || ContainsFromGo(l.target.name,searchstring) )
 			{
 				d3.selectAll("g").filter(function(d) { return d.id === l.source.id || d.id === l.target.id })
@@ -1175,9 +1178,9 @@ function searchNodeText(){
 					this_text = d3.select(this).text();
 					this_search_result = ContainsFromGo(this_text,searchstring);
 					if(this_search_result){
-						return 'noselect emphasis_nodetext'; 
+						return 'noselect emphasis_nodetext';
 					}else{
-						return 'noselect light_nodetext'; 
+						return 'noselect light_nodetext';
 					}
 				}
 			);
@@ -1196,10 +1199,10 @@ function free_nodes(){
 }
 
 function free_one_node(node_index){
-	
+
 	static_positions[node_index] = { saved: false};
 	graph.nodes[node_index].fixed = false;
-	
+
 	true_unfreeze();
 }
 
@@ -1238,10 +1241,10 @@ function post_static_positions(static_position_array){
 			clean_array.push(tmp);
 		}
 	}
-	send_me = { 
+	send_me = {
 		'static_positions': clean_array,
 		'careset_code':  '1114904687' ,
-		'report':  'dandelion_simple' 
+		'report':  'dandelion_simple'
 	};
 
 	//console.log('Attempting Save Position with: ');
@@ -1264,7 +1267,7 @@ function post_static_positions(static_position_array){
 
 
 function defineGravity(alpha){
-	
+
 	return function(d) {
 
 		halfX = virtual_width / 2;
@@ -1284,7 +1287,7 @@ function defineGravity(alpha){
 				if(d.fixed == true){
 					return;
 				}
-		
+
 				fociCenterY = Math.round(halfY + tenthY); //shifted down to account for labels
 				fociCenterX = halfX;
 
@@ -1295,12 +1298,12 @@ function defineGravity(alpha){
 
 				x_factored_gravity = (myGravity_x * 2) * (1 / group_factor) ;
 				y_factored_gravity = (myGravity_y * 2) * (1 / group_factor) ;
-	
+
 				xk = x_factored_gravity * alpha;
 				yk = y_factored_gravity * alpha;
-	
+
 				d.y += (fociCenterY - d.y) * yk;
-				d.x += (fociCenterX - d.x) * xk;	
+				d.x += (fociCenterX - d.x) * xk;
 				return;
 
 			break;
@@ -1309,15 +1312,15 @@ function defineGravity(alpha){
 				if(d.fixed == true){
 					return;
 				}
-		
+
 				fociCenterY = Math.round(halfY + tenthY);
 				fociCenterX = 3 * (fourthX); //this makes it right
 
-				factored_gravity = (myGravity * 2);	
+				factored_gravity = (myGravity * 2);
 				xk = factored_gravity * alpha;
 				yk = myGravity * alpha;
-	
-				d.x += (fociCenterX - d.x) * xk;	
+
+				d.x += (fociCenterX - d.x) * xk;
 				d.y += (fociCenterY - d.y) * yk;
 				return;
 
@@ -1326,42 +1329,42 @@ function defineGravity(alpha){
 				if(d.fixed == true){
 					return;
 				}
-		
+
 				fociCenterY = Math.round(halfY + tenthY);
 				fociCenterX = (fourthX); //this makes it to the left
 
-				factored_gravity = (myGravity * 2);	
+				factored_gravity = (myGravity * 2);
 				xk = factored_gravity * alpha;
 				yk = myGravity * alpha;
-	
-				d.x += (fociCenterX - d.x) * xk;	
+
+				d.x += (fociCenterX - d.x) * xk;
 				d.y += (fociCenterY - d.y) * yk;
 				return;
-			
+
 			break;
 
 			case 'group':
 				if(d.fixed == true){
 					return;
 				}
-		
+
 				slot_count = (graph.groups.length * 2) + 1;
 				my_slot = (d.group * 2) + 1
 
 				fociCenterX = Math.round((virtual_width / slot_count) * my_slot);
 				fociCenterY = Math.round(halfY + tenthY);
-	
+
 
 				factored_gravity = (myGravity * 3);
-	
+
 				yk = myGravity * alpha;
 				xk = factored_gravity * alpha;
-	
+
 				new_y = d.y + Math.round((fociCenterY - d.y) * yk);
 				new_x = d.x + Math.round((fociCenterX - d.x) * xk);
 				d.y = new_y;
 				d.x = new_x;
-				
+
 				return;
 
 			break;
@@ -1386,7 +1389,7 @@ function save_relative(d){
 function updateForce() {
 	//console.log('force stop: due to window resize');
   force.stop();
-  
+
 //look in FORCEReportController for the default values that drive these sliders...
   var newGravity = document.getElementById('gravitySlider').value;
   var newCharge = document.getElementById('chargeSlider').value;
@@ -1396,20 +1399,20 @@ function updateForce() {
   document.getElementById('gravityInput').value = newGravity;
 
 
-	
-  var newLinkDistance = 30; 
+
+  var newLinkDistance = 30;
   var newLinkStrength = 0.55;
   var newFriction = 0.7;
   var newChargeDistance = 300;
   var newTheta = 0.35
-  var newGravityXYRatio = 3; 
+  var newGravityXYRatio = 3;
   var newAlpha = 0.5;
 
-	
 
 
- 
- 
+
+
+
   force
  // .linkDistance(newLinkDistance)
   .linkStrength(newLinkStrength)
@@ -1419,16 +1422,16 @@ function updateForce() {
   .theta(newTheta)
   .gravity(0)
   .alpha(newAlpha);
-  
+
 
 	myGravity = newGravity;// I manage the gravity not... not D3
 	myGravityXYRatio = newGravityXYRatio;
 	myAlpha = newAlpha;
 
-  zoom_factor = newZoom; 
- 
+  zoom_factor = newZoom;
+
   dynamic_resize();
- 
+
   force_settle(20000,'user adjusted parameters');
 }
 
@@ -1442,7 +1445,7 @@ function dynamic_resize(){
 	if (typeof graph  === "undefined") {
 		//console.log('waiting for json data to run save position logic...');
 	}else{
-    //width = window.innerWidth - 500;	//this breaks when the left side menu stacks b/c of responsive... 
+    //width = window.innerWidth - 500;	//this breaks when the left side menu stacks b/c of responsive...
     		real_height = window.innerHeight - 150;	//we use the window to get the height because we need to resize the div
     		real_width = $('#viz').width() - 10; //this lets us respect the responsive design from bootstrap for width..
     		viz_height = real_height + 1;
@@ -1463,10 +1466,10 @@ function dynamic_resize(){
                         if(o.fixed){
                                 //console.log("node "+i);
                                 new_x = Math.floor(o.rx * virtual_width);
-				//console.log("Calculating " + new_x + " from relative position " + o.rx); 
+				//console.log("Calculating " + new_x + " from relative position " + o.rx);
                                 new_y = Math.floor(o.ry * virtual_height);
 				if(!isNaN(new_x)){
-                                	//console.log('calculate new x position ' + new_x);	
+                                	//console.log('calculate new x position ' + new_x);
 				}
 					//console.log(o);
 					//console.log('width ' + width);
@@ -1486,7 +1489,7 @@ function dynamic_resize(){
 	}
 
 }
-// When we resize the window, lets dynamically resize everything... 
+// When we resize the window, lets dynamically resize everything...
 d3.select(window).on('resize', dynamic_resize);
 //Since we do not know how big the window is to start, lets resize just once to get going...
 dynamic_resize();
@@ -1505,7 +1508,7 @@ setInterval( function () {
 	}
 
 	//console.log('How many Ticks: ' +how_many_ticks);
-	
+
 },3000);
 
 //Our way of ensuring that the default is not moving...
@@ -1546,9 +1549,9 @@ function downloadSVG(){
 }
 
 function tooManyTooShow(graph){
-	//replace me with dust... 
+	//replace me with dust...
 	$("#loading_div").html(	"<h1> Too much data to browse with the graph browser </h1><ul><li> Node Count: " +
-			graph.summary.nodes_count + " > " + second_node_ceiling + "  </li> <li> Connection Count " + 
+			graph.summary.nodes_count + " > " + second_node_ceiling + "  </li> <li> Connection Count " +
 			graph.summary.links_count + " > " + second_links_ceiling + " </li> </ul>" +
 			"<p> You might try to increase the patient flow threshold to get a simpler graph... </p>"
 		);
@@ -1632,14 +1635,14 @@ function strlenFromPHP(the_string) {
 
 
 
-	
+
 
 
 </div>
 </div>
 </div>
 
-</div> <!-- end main container-fluid --> 
+</div> <!-- end main container-fluid -->
 
 <div class='visible-print-block'>
 <p class='text-center'>
@@ -1652,57 +1655,57 @@ Copyright © CareSet 2019
 
 
 <script>
-  $(document).ready(function() 
+  $(document).ready(function()
        {
-                $('#dataOptionsModal').on('show.bs.modal', function (e) {  
+                $('#dataOptionsModal').on('show.bs.modal', function (e) {
 
-                        url = '/CARESETREPORTJSON/referral_start/1114904687/';  
+                        url = '/CARESETREPORTJSON/referral_start/1114904687/';
 
-                        $.getJSON(url,function(data){  
-		
+                        $.getJSON(url,function(data){
+
 				data.FORCE_view_stub = 'dandelion_simple';
 				data.return_url = '/FORCE/dandelion_simple/1114904687/10/';
 				graph.FORCE_view_stub = 'dandelion_simple';
 				graph.return_url = '/FORCE/dandelion_simple/1114904687/10/';
 
 
-                                dust.render("FORCE_data_options_tax", data,   
-                                        function(err,out){  
-                                                $('#modal_tax_chooser').html(out);                                          
- 
-                				$('#sorted_tax_table').tablesorter({  
-                       	 				widgets : ["uitheme","filter","zebra","stickyHeaders"],  
-                        				theme: 'bootstrap',  
-                        				widthFixed: true,  
-                        				widgetOptions : {  
-                               			 		zebra: ['even', 'odd'],  
-                                				filter_hideFilters : false,  
-                               	 				stickyHeaders_offset: 51  
-                                			}  
-                				});//end of tablesorter..  
+                                dust.render("FORCE_data_options_tax", data,
+                                        function(err,out){
+                                                $('#modal_tax_chooser').html(out);
+
+                				$('#sorted_tax_table').tablesorter({
+                       	 				widgets : ["uitheme","filter","zebra","stickyHeaders"],
+                        				theme: 'bootstrap',
+                        				widthFixed: true,
+                        				widgetOptions : {
+                               			 		zebra: ['even', 'odd'],
+                                				filter_hideFilters : false,
+                               	 				stickyHeaders_offset: 51
+                                			}
+                				});//end of tablesorter..
                              	});//end of dust render
 
 					//graph should be defined as a global variable and populated with
 					//the json data from force json call..
-                                dust.render("FORCE_data_options_datasource", graph, 	  
-                                        function(err,out){  
-                                                $('#modal_data_chooser').html(out);                                          
- 
-                                                $('#sorted_tax_table').tablesorter({  
-                                                        widgets : ["uitheme","filter","zebra","stickyHeaders"],  
-                                                        theme: 'bootstrap',  
-                                                        widthFixed: true,  
-                                                        widgetOptions : {  
-                                                                zebra: ['even', 'odd'],  
-                                                                filter_hideFilters : false,  
-                                                                stickyHeaders_offset: 51  
-                                                        }  
-                                                });//end of tablesorter..  
+                                dust.render("FORCE_data_options_datasource", graph,
+                                        function(err,out){
+                                                $('#modal_data_chooser').html(out);
+
+                                                $('#sorted_tax_table').tablesorter({
+                                                        widgets : ["uitheme","filter","zebra","stickyHeaders"],
+                                                        theme: 'bootstrap',
+                                                        widthFixed: true,
+                                                        widgetOptions : {
+                                                                zebra: ['even', 'odd'],
+                                                                filter_hideFilters : false,
+                                                                stickyHeaders_offset: 51
+                                                        }
+                                                });//end of tablesorter..
                                 });//end of dust render
-		
-		
- 
-                        });//end of getJSON  
+
+
+
+                        });//end of getJSON
                 }); //end of on(show.bs.modal)
  	});//end of jquery ready
 
