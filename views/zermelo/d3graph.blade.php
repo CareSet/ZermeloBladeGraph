@@ -1647,7 +1647,7 @@ function strlenFromPHP(the_string) {
 <div class='visible-print-block'>
 <p class='text-center'>
 <small>
-Copyright © CareSet 2019
+Copyright © CareSet 2021
 </small>
 <p>
 </div>
